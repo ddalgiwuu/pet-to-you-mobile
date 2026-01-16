@@ -1,0 +1,307 @@
+version: '3.8'
+
+#
+# 3-Tier Network Segmentation for Pet to You
+#
+# Architecture:
+# - DMZ Zone: Public API (no auth required)
+# - Service Zone: Main API (JWT auth)
+# - Sensitive Zone: Medical/Insurance API (2FA + VPN)
+#
+# Compliance:
+# - 의료법: Medical data isolated
+# - PIPA: Network segmentation
+# - 정보통신망법: Physical separation
+#
+
+services:
+  # ========================================
+  # DMZ ZONE (Public Subnet)
+  # ========================================
+
+  public-api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: pet-to-you-public-api
+    networks:
+      - dmz
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@postgres-public:5432/pet_to_you_public
+      - MONGODB_URL=mongodb://mongo-public:27017/pet_to_you_public
+      - SERVICE_ZONE=DMZ
+      - ENABLE_AUTH=false
+    depends_on:
+      - postgres-public
+      - mongo-public
+    restart: unless-stopped
+    labels:
+      - "com.pet-to-you.zone=dmz"
+      - "com.pet-to-you.public=true"
+
+  # MongoDB Read Replica (Public data only)
+  mongo-public:
+    image: mongo:7
+    container_name: pet-to-you-mongo-public
+    networks:
+      - dmz
+    environment:
+      - MONGO_INITDB_DATABASE=pet_to_you_public
+    volumes:
+      - mongo-public-data:/data/db
+    restart: unless-stopped
+
+  # PostgreSQL Public (minimal public data)
+  postgres-public:
+    image: postgres:16
+    container_name: pet-to-you-postgres-public
+    networks:
+      - dmz
+    environment:
+      - POSTGRES_DB=pet_to_you_public
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-public-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ========================================
+  # SERVICE ZONE (Private Subnet)
+  # ========================================
+
+  service-api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: pet-to-you-service-api
+    networks:
+      - service
+      - dmz  # Can communicate with DMZ
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@postgres-service:5432/pet_to_you_service
+      - MONGODB_URL=mongodb://mongo-service:27017/pet_to_you_service
+      - REDIS_HOST=redis-service
+      - REDIS_PORT=6379
+      - SERVICE_ZONE=SERVICE
+      - REQUIRE_JWT=true
+    depends_on:
+      - postgres-service
+      - mongo-service
+      - redis-service
+    restart: unless-stopped
+    labels:
+      - "com.pet-to-you.zone=service"
+      - "com.pet-to-you.auth=jwt"
+
+  postgres-service:
+    image: postgres:16
+    container_name: pet-to-you-postgres-service
+    networks:
+      - service
+    environment:
+      - POSTGRES_DB=pet_to_you_service
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-service-data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "ssl=on"  # Force SSL
+    restart: unless-stopped
+
+  mongo-service:
+    image: mongo:7
+    container_name: pet-to-you-mongo-service
+    networks:
+      - service
+    environment:
+      - MONGO_INITDB_DATABASE=pet_to_you_service
+    volumes:
+      - mongo-service-data:/data/db
+    restart: unless-stopped
+
+  redis-service:
+    image: redis:7-alpine
+    container_name: pet-to-you-redis
+    networks:
+      - service
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  # ========================================
+  # SENSITIVE ZONE (Isolated Subnet)
+  # ========================================
+
+  sensitive-api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: pet-to-you-sensitive-api
+    networks:
+      - sensitive
+      - service  # Can communicate with Service zone only
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@postgres-sensitive:5432/pet_to_you_sensitive
+      - SERVICE_ZONE=SENSITIVE
+      - REQUIRE_2FA=true
+      - REQUIRE_VPN=true
+      - AUDIT_ALL_REQUESTS=true
+    depends_on:
+      - postgres-sensitive
+    restart: unless-stopped
+    labels:
+      - "com.pet-to-you.zone=sensitive"
+      - "com.pet-to-you.auth=2fa+vpn"
+      - "com.pet-to-you.data=medical+insurance"
+
+  postgres-sensitive:
+    image: postgres:16
+    container_name: pet-to-you-postgres-sensitive
+    networks:
+      - sensitive
+    environment:
+      - POSTGRES_DB=pet_to_you_sensitive
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-sensitive-data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "ssl=on"
+      - "-c"
+      - "log_statement=all"  # Log all queries (의료법 requirement)
+    restart: unless-stopped
+
+  # S3 Compatible Storage (Medical documents)
+  minio-sensitive:
+    image: minio/minio:latest
+    container_name: pet-to-you-minio-sensitive
+    networks:
+      - sensitive
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    volumes:
+      - minio-sensitive-data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+  # ========================================
+  # MONITORING & COMPLIANCE
+  # ========================================
+
+  wazuh-manager:
+    image: wazuh/wazuh-manager:latest
+    container_name: pet-to-you-wazuh
+    networks:
+      - monitoring
+      - dmz
+      - service
+      - sensitive
+    ports:
+      - "1514:1514"  # Agent connection
+      - "1515:1515"  # Agent enrollment
+      - "55000:55000"  # API
+    environment:
+      - INDEXER_URL=https://wazuh-indexer:9200
+    volumes:
+      - ./infrastructure/wazuh/detection-rules.yml:/var/ossec/etc/rules/local_rules.xml
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: pet-to-you-elasticsearch
+    networks:
+      - monitoring
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: pet-to-you-kibana
+    networks:
+      - monitoring
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+# ========================================
+# NETWORKS (Isolated Subnets)
+# ========================================
+
+networks:
+  dmz:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
+    labels:
+      - "com.pet-to-you.zone=dmz"
+      - "com.pet-to-you.public=true"
+
+  service:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.2.0/24
+    internal: false
+    labels:
+      - "com.pet-to-you.zone=service"
+      - "com.pet-to-you.auth=required"
+
+  sensitive:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.3.0/24
+    internal: true  # No internet access (의료법 requirement)
+    labels:
+      - "com.pet-to-you.zone=sensitive"
+      - "com.pet-to-you.data=medical"
+      - "com.pet-to-you.isolation=maximum"
+
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.4.0/24
+
+# ========================================
+# VOLUMES (Persistent Storage)
+# ========================================
+
+volumes:
+  postgres-public-data:
+  postgres-service-data:
+  postgres-sensitive-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/postgres-sensitive  # Separate physical location for medical data
+  mongo-public-data:
+  mongo-service-data:
+  minio-sensitive-data:
+  redis-data:
+  elasticsearch-data:

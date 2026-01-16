@@ -1,0 +1,12 @@
+- Installing CocoaPods...
+✔ Installed CocoaPods
+› Port 8081 is running mobile in another window
+  /Users/ryansong/Desktop/DEV/pet-to-you/apps/mobile (pid 85459)
+Input is required, but 'npx expo' is in non-interactive mode.
+Required input:
+> Use port 8082 instead?
+› Skipping dev server
+Unexpected devicectl JSON version output from devicectl. Connecting to physical Apple devices may not work as expected.
+CommandError: Input is required, but 'npx expo' is in non-interactive mode.
+Required input:
+> Select a device

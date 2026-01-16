@@ -1,0 +1,7 @@
+2026-01-07T04:04:01.022Z expo:telemetry Switching strategy from detached to instant
+2026-01-07T04:04:01.048Z expo:telemetry Recording 1 event(s)
+2026-01-07T04:04:01.056Z expo:env Loaded environment variables from: /Users/ryansong/Desktop/DEV/pet-to-you/apps/mobile/.env
+env: load .env
+env: export EXPO_PUBLIC_KAKAO_JAVASCRIPT_KEY
+2026-01-07T16:15:23.230Z expo:utils:scheme ios application Info.plist path: mobile/Info.plist
+2026-01-07T16:15:23.299Z expo:utils:scheme ios application schemes: [ 'mobile', 'com.anonymous.mobile', 'exp+mobile' ]

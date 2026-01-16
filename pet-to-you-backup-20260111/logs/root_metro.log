@@ -1,0 +1,19 @@
+env: load .env
+env: export EXPO_PUBLIC_KAKAO_JAVASCRIPT_KEY
+Starting project at /Users/ryansong/Desktop/DEV/pet-to-you/apps/mobile
+Error: Cannot find module '/Users/ryansong/Desktop/DEV/pet-to-you/tailwind.config'
+Require stack:
+- /Users/ryansong/Desktop/DEV/pet-to-you/node_modules/tailwindcss/lib/lib/load-config.js
+Error: Cannot find module '/Users/ryansong/Desktop/DEV/pet-to-you/tailwind.config'
+Require stack:
+- /Users/ryansong/Desktop/DEV/pet-to-you/node_modules/tailwindcss/lib/lib/load-config.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)
+    at require.resolve (node:internal/modules/helpers:163:19)
+    at _resolve (/Users/ryansong/Desktop/DEV/pet-to-you/node_modules/jiti/dist/jiti.js:1:246378)
+    at jiti (/Users/ryansong/Desktop/DEV/pet-to-you/node_modules/jiti/dist/jiti.js:1:249092)
+    at /Users/ryansong/Desktop/DEV/pet-to-you/node_modules/tailwindcss/lib/lib/load-config.js:53:30
+    at loadConfig (/Users/ryansong/Desktop/DEV/pet-to-you/node_modules/tailwindcss/lib/lib/load-config.js:55:6)
+    at tailwindConfigV3 (/Users/ryansong/Desktop/DEV/pet-to-you/node_modules/nativewind/src/metro/tailwind/v3/index.ts:90:59)
+    at tailwindConfig (/Users/ryansong/Desktop/DEV/pet-to-you/node_modules/nativewind/src/metro/tailwind/index.ts:18:28)
+    at withNativeWind (/Users/ryansong/Desktop/DEV/pet-to-you/node_modules/nativewind/src/metro/index.ts:45:39)
+    at Object.<anonymous> (/Users/ryansong/Desktop/DEV/pet-to-you/apps/mobile/metro.config.js:22:18)
