@@ -1,0 +1,54 @@
+Starting project at /Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:19000
+Logs for your project will appear below.
+iOS ./index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS ./index.ts ▓▓▓▓▓▓░░░░░░░░░░ 37.9% (242/393)
+iOS Bundled 6797ms index.ts (685 modules)
+iOS ./index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 63ms index.ts (1 module)
+Unable to resolve "./App" from "index.ts"
+[0m [90m 1 |[39m [36mimport[39m { registerRootComponent } [36mfrom[39m [32m'expo'[39m[33m;[39m
+ [90m 2 |[39m
+[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m [33mApp[39m [36mfrom[39m [32m'./App'[39m[33m;[39m
+ [90m   |[39m                  [31m[1m^[22m[39m
+ [90m 4 |[39m
+ [90m 5 |[39m [90m// registerRootComponent calls AppRegistry.registerComponent('main', () => App);[39m
+ [90m 6 |[39m [90m// It also ensures that whether you load the app in Expo Go or in a native build,[39m[0m
+
+Import stack:
+
+ index.ts
+ | import "./App"
+
+ 
+ | import "./index.ts"
+
+ ERROR  [Error: UnableToResolveError Unable to resolve module ./App from /Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/index.ts: 
+
+None of these files exist:
+  * App(.ios.ts|.native.ts|.ts|.ios.tsx|.native.tsx|.tsx|.ios.mjs|.native.mjs|.mjs|.ios.js|.native.js|.js|.ios.jsx|.native.jsx|.jsx|.ios.json|.native.json|.json|.ios.cjs|.native.cjs|.cjs|.ios.scss|.native.scss|.scss|.ios.sass|.native.sass|.sass|.ios.css|.native.css|.css)
+  * App
+[0m [90m 1 |[39m [36mimport[39m { registerRootComponent } [36mfrom[39m [32m'expo'[39m[33m;[39m
+ [90m 2 |[39m
+[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m [33mApp[39m [36mfrom[39m [32m'./App'[39m[33m;[39m
+ [90m   |[39m                  [31m[1m^[22m[39m
+ [90m 4 |[39m
+ [90m 5 |[39m [90m// registerRootComponent calls AppRegistry.registerComponent('main', () => App);[39m
+ [90m 6 |[39m [90m// It also ensures that whether you load the app in Expo Go or in a native build,[39m[0m]
+ ERROR  Error: Got unexpected undefined
+    at nullthrows (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/nullthrows/nullthrows.js:7:15)
+    at Graph._recursivelyCommitModule (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/metro/src/DeltaBundler/Graph.js:203:51)
+    at Graph.traverseDependencies (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/metro/src/DeltaBundler/Graph.js:102:14)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at DeltaCalculator._getChangedDependencies (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/metro/src/DeltaBundler/DeltaCalculator.js:191:42)
+ ERROR  [Error: InternalError Metro has encountered an error: Got unexpected undefined: /Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/nullthrows/nullthrows.js (7:15)
+
+[0m [90m  5 |[39m     [36mreturn[39m x[33m;[39m
+ [90m  6 |[39m   }
+[31m[1m>[22m[39m[90m  7 |[39m   [36mvar[39m error [33m=[39m [36mnew[39m [33mError[39m(message [33m!==[39m undefined [33m?[39m message [33m:[39m [32m'Got unexpected '[39m [33m+[39m x)[33m;[39m
+ [90m    |[39m               [31m[1m^[22m[39m
+ [90m  8 |[39m   error[33m.[39mframesToPop [33m=[39m [35m1[39m[33m;[39m [90m// Skip nullthrows's own stack frame.[39m
+ [90m  9 |[39m   [36mthrow[39m error[33m;[39m
+ [90m 10 |[39m }[0m]

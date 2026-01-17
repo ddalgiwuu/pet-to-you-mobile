@@ -1,0 +1,11 @@
+
+> pet-to-you-mobile@1.0.0 start
+> expo start
+
+Starting project at /Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile
+› Port 8081 is running mobile in another window
+  /Users/ryansong/.Trash/pet-to-you/apps/mobile (pid 82780)
+Input is required, but 'npx expo' is in non-interactive mode.
+Required input:
+> Use port 8082 instead?
+› Skipping dev server

@@ -1,0 +1,174 @@
+Starting project at /Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:19000
+Logs for your project will appear below.
+iOS ./index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS ./index.ts ▓▓▓▓▓▓░░░░░░░░░░ 40.5% (311/552)
+iOS ./index.ts ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.0% ( 828/1083)
+iOS ./index.ts ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.4% (1517/1537)
+iOS Bundled 10886ms index.ts (1559 modules)
+ WARN  Linking requires a build-time setting `scheme` in the project's Expo config (app.config.js or app.json) for production apps, if it's left blank, your app may crash. The scheme does not apply to development in the Expo client but you should add it as soon as you start working with Linking to avoid creating a broken build. Learn more: https://docs.expo.dev/guides/linking/
+ WARN  Linking requires a build-time setting `scheme` in the project's Expo config (app.config.js or app.json) for bare or production apps. Manually providing a `scheme` property can circumvent this warning. Using native app identifier as the scheme 'com.anonymous.pet-to-you-mobile'. Learn more: https://docs.expo.dev/guides/linking/
+ ERROR  [Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.] 
+
+Code: onboarding.tsx
+[0m [90m 70 |[39m
+ [90m 71 |[39m   [36mconst[39m renderItem [33m=[39m ({ item[33m,[39m index }[33m:[39m { item[33m:[39m [33mOnboardingScreen[39m[33m;[39m index[33m:[39m number }) [33m=>[39m {
+[31m[1m>[22m[39m[90m 72 |[39m     [36mconst[39m animatedStyle [33m=[39m useAnimatedStyle(() [33m=>[39m {
+ [90m    |[39m                                           [31m[1m^[22m[39m
+ [90m 73 |[39m       [36mconst[39m inputRange [33m=[39m [
+ [90m 74 |[39m         (index [33m-[39m [35m1[39m) [33m*[39m width[33m,[39m
+ [90m 75 |[39m         index [33m*[39m width[33m,[39m[0m
+Call Stack
+  renderItem (app/(auth)/onboarding.tsx:72:43) 
+
+Code: onboarding.tsx
+[0m [90m 154 |[39m       [33m<[39m[33m/[39m[33mTouchableOpacity[39m[33m>[39m
+ [90m 155 |[39m
+[31m[1m>[22m[39m[90m 156 |[39m       [33m<[39m[33mFlatList[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 157 |[39m         ref[33m=[39m{flatListRef}
+ [90m 158 |[39m         data[33m=[39m{[33mONBOARDING_DATA[39m}
+ [90m 159 |[39m         renderItem[33m=[39m{renderItem}[0m
+Call Stack
+  OnboardingScreen (app/(auth)/onboarding.tsx:156:7)
+  RootLayout (app/_layout.tsx:29:9)
+ ERROR  [Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.] 
+
+Code: onboarding.tsx
+[0m [90m 70 |[39m
+ [90m 71 |[39m   [36mconst[39m renderItem [33m=[39m ({ item[33m,[39m index }[33m:[39m { item[33m:[39m [33mOnboardingScreen[39m[33m;[39m index[33m:[39m number }) [33m=>[39m {
+[31m[1m>[22m[39m[90m 72 |[39m     [36mconst[39m animatedStyle [33m=[39m useAnimatedStyle(() [33m=>[39m {
+ [90m    |[39m                                           [31m[1m^[22m[39m
+ [90m 73 |[39m       [36mconst[39m inputRange [33m=[39m [
+ [90m 74 |[39m         (index [33m-[39m [35m1[39m) [33m*[39m width[33m,[39m
+ [90m 75 |[39m         index [33m*[39m width[33m,[39m[0m
+Call Stack
+  renderItem (app/(auth)/onboarding.tsx:72:43) 
+
+Code: onboarding.tsx
+[0m [90m 154 |[39m       [33m<[39m[33m/[39m[33mTouchableOpacity[39m[33m>[39m
+ [90m 155 |[39m
+[31m[1m>[22m[39m[90m 156 |[39m       [33m<[39m[33mFlatList[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 157 |[39m         ref[33m=[39m{flatListRef}
+ [90m 158 |[39m         data[33m=[39m{[33mONBOARDING_DATA[39m}
+ [90m 159 |[39m         renderItem[33m=[39m{renderItem}[0m
+Call Stack
+  OnboardingScreen (app/(auth)/onboarding.tsx:156:7)
+  RootLayout (app/_layout.tsx:29:9)
+› Detected a change in babel.config.js. Restart the server to see the new results. You may need to clear the bundler cache with the --clear flag for your changes to take effect.
+iOS ./index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 77ms index.ts (1 module)
+ WARN  Linking requires a build-time setting `scheme` in the project's Expo config (app.config.js or app.json) for production apps, if it's left blank, your app may crash. The scheme does not apply to development in the Expo client but you should add it as soon as you start working with Linking to avoid creating a broken build. Learn more: https://docs.expo.dev/guides/linking/
+ WARN  Linking requires a build-time setting `scheme` in the project's Expo config (app.config.js or app.json) for bare or production apps. Manually providing a `scheme` property can circumvent this warning. Using native app identifier as the scheme 'com.anonymous.pet-to-you-mobile'. Learn more: https://docs.expo.dev/guides/linking/
+ ERROR  [Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.] 
+
+Code: onboarding.tsx
+[0m [90m 70 |[39m
+ [90m 71 |[39m   [36mconst[39m renderItem [33m=[39m ({ item[33m,[39m index }[33m:[39m { item[33m:[39m [33mOnboardingScreen[39m[33m;[39m index[33m:[39m number }) [33m=>[39m {
+[31m[1m>[22m[39m[90m 72 |[39m     [36mconst[39m animatedStyle [33m=[39m useAnimatedStyle(() [33m=>[39m {
+ [90m    |[39m                                           [31m[1m^[22m[39m
+ [90m 73 |[39m       [36mconst[39m inputRange [33m=[39m [
+ [90m 74 |[39m         (index [33m-[39m [35m1[39m) [33m*[39m width[33m,[39m
+ [90m 75 |[39m         index [33m*[39m width[33m,[39m[0m
+Call Stack
+  renderItem (app/(auth)/onboarding.tsx:72:43) 
+
+Code: onboarding.tsx
+[0m [90m 154 |[39m       [33m<[39m[33m/[39m[33mTouchableOpacity[39m[33m>[39m
+ [90m 155 |[39m
+[31m[1m>[22m[39m[90m 156 |[39m       [33m<[39m[33mFlatList[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 157 |[39m         ref[33m=[39m{flatListRef}
+ [90m 158 |[39m         data[33m=[39m{[33mONBOARDING_DATA[39m}
+ [90m 159 |[39m         renderItem[33m=[39m{renderItem}[0m
+Call Stack
+  OnboardingScreen (app/(auth)/onboarding.tsx:156:7)
+  RootLayout (app/_layout.tsx:29:9)
+ ERROR  SyntaxError: /Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/app/(auth)/onboarding.tsx: 'return' outside of function. (138:2)
+
+  136 |   };
+  137 |
+> 138 |   return (
+      |   ^
+  139 |     <View style={styles.container}>
+  140 |       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+  141 |         <Text style={styles.skipText}>건너뛰기</Text>
+    at constructor (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:365:19)
+    at TypeScriptParserMixin.raise (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:6599:19)
+    at TypeScriptParserMixin.parseReturnStatement (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:13126:12)
+    at TypeScriptParserMixin.parseStatementContent (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:12788:21)
+    at TypeScriptParserMixin.parseStatementContent (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:9508:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:12757:17)
+    at TypeScriptParserMixin.parseModuleItem (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:12734:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:13306:36)
+    at TypeScriptParserMixin.parseBlockBody (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:13299:10)
+    at TypeScriptParserMixin.parseProgram (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:12612:10)
+    at TypeScriptParserMixin.parseTopLevel (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:12602:25)
+    at TypeScriptParserMixin.parse (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:14478:25)
+    at TypeScriptParserMixin.parse (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:10116:18)
+    at parse (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/parser/lib/index.js:14491:26)
+    at parser (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/core/lib/transformation/index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/core/lib/transform.js:22:33)
+    at transform.next (<anonymous>)
+    at evaluateSync (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/gensync/index.js:251:28)
+    at sync (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/gensync/index.js:89:14)
+    at stopHiding - secret - don't use this - v1 (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/core/lib/errors/rewrite-stack-trace.js:47:12)
+    at Object.transformSync (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/@babel/core/lib/transform.js:40:76)
+    at parseWithBabel (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/expo/node_modules/@expo/metro-config/build/transformSync.js:75:18)
+    at transformSync (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/expo/node_modules/@expo/metro-config/build/transformSync.js:54:16)
+    at Object.transform (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/expo/node_modules/@expo/metro-config/build/babel-transformer.js:127:58)
+    at transformJSWithBabel (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/expo/node_modules/@expo/metro-config/build/transform-worker/metro-transform-worker.js:468:47)
+    at Object.transform (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/expo/node_modules/@expo/metro-config/build/transform-worker/metro-transform-worker.js:583:12)
+    at Object.transform (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/expo/node_modules/@expo/metro-config/build/transform-worker/transform-worker.js:178:19)
+    at transformFile (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/metro/src/DeltaBundler/Worker.flow.js:67:36)
+    at Object.transform (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/metro/src/DeltaBundler/Worker.flow.js:42:10)
+    at execFunction (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/jest-worker/build/workers/processChild.js:149:17)
+    at execHelper (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/jest-worker/build/workers/processChild.js:137:5)
+    at execMethod (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/jest-worker/build/workers/processChild.js:140:5)
+    at process.messageListener (/Users/ryansong/Desktop/DEV/Pet_to_You/pet-to-you-mobile/node_modules/jest-worker/build/workers/processChild.js:44:7)
+    at process.emit (node:events:508:28)
+    at emit (node:internal/child_process:933:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+ ERROR  [ReferenceError: Property 'renderItem' doesn't exist] 
+
+Code: onboarding.tsx
+[0m [90m 175 |[39m         ref[33m=[39m{flatListRef}
+ [90m 176 |[39m         data[33m=[39m{[33mONBOARDING_DATA[39m}
+[31m[1m>[22m[39m[90m 177 |[39m         renderItem[33m=[39m{renderItem}
+ [90m     |[39m                     [31m[1m^[22m[39m
+ [90m 178 |[39m         keyExtractor[33m=[39m{(item) [33m=>[39m item[33m.[39mid[33m.[39mtoString()}
+ [90m 179 |[39m         horizontal
+ [90m 180 |[39m         pagingEnabled[0m
+Call Stack
+  OnboardingScreen (app/(auth)/onboarding.tsx:177:21) 
+
+Code: _layout.tsx
+[0m [90m 14 |[39m   defaultOptions[33m:[39m {
+ [90m 15 |[39m     queries[33m:[39m {
+[31m[1m>[22m[39m[90m 16 |[39m       staleTime[33m:[39m [35m1000[39m [33m*[39m [35m60[39m [33m*[39m [35m5[39m[33m,[39m [90m// 5 minutes[39m
+ [90m    |[39m                               [31m[1m^[22m[39m
+ [90m 17 |[39m       gcTime[33m:[39m [35m1000[39m [33m*[39m [35m60[39m [33m*[39m [35m10[39m[33m,[39m [90m// 10 minutes[39m
+ [90m 18 |[39m       retry[33m:[39m [35m2[39m[33m,[39m
+ [90m 19 |[39m       refetchOnWindowFocus[33m:[39m [36mfalse[39m[33m,[39m[0m
+Call Stack
+  <global> (app/_layout.tsx:16:31)
