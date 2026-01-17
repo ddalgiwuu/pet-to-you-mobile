@@ -172,6 +172,7 @@ export const Input: React.FC<InputProps> = ({
             onFocus={handleFocus}
             onBlur={handleBlur}
             style={styles.input}
+            placeholder={isFocused || hasValue ? '' : textInputProps.placeholder}
             placeholderTextColor={colors.text.tertiary}
           />
         </View>

@@ -177,7 +177,6 @@ export default function LoginScreen() {
                 label="이메일"
                 value={email}
                 onChangeText={setEmail}
-                placeholder="email@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -186,7 +185,6 @@ export default function LoginScreen() {
                 label="비밀번호"
                 value={password}
                 onChangeText={setPassword}
-                placeholder="••••••••"
                 secureTextEntry
               />
 

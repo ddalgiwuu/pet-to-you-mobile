@@ -197,7 +197,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   gradient: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -241,6 +242,7 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: '600',
     textAlign: 'center',
+    backgroundColor: 'transparent',
   },
   smallText: {
     fontSize: 14,
