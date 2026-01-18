@@ -161,14 +161,7 @@ export const Button: React.FC<ButtonProps> = ({
         accessibilityRole="button"
         accessibilityState={{ disabled: disabled || loading }}
       >
-        <LinearGradient
-          colors={colors.gradients.primary}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradient}
-        >
-          {renderContent()}
-        </LinearGradient>
+        {renderContent()}
       </AnimatedPressable>
     );
   }

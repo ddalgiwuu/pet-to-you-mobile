@@ -58,7 +58,7 @@ export default function LoginScreen() {
     transform: [{ scale: logoScale.value }],
   }));
 
-  // Triple tap detection for developer mode
+  // Five tap detection for developer mode
   const handleLogoPress = () => {
     tapCount.current += 1;
 
@@ -70,7 +70,7 @@ export default function LoginScreen() {
       tapCount.current = 0;
     }, 500);
 
-    if (tapCount.current === 3) {
+    if (tapCount.current === 5) {
       tapCount.current = 0;
       toggleDevMode();
       Haptics.notificationAsync(
@@ -133,6 +133,20 @@ export default function LoginScreen() {
     router.replace('/(tabs)');
   };
 
+  const handleLoginBypass = () => {
+    // Skip login and go directly to home
+    const mockUser = {
+      id: 'dev-user',
+      email: 'dev@test.com',
+      name: 'Developer',
+      createdAt: new Date().toISOString(),
+    };
+    const mockToken = 'dev-token-' + Date.now();
+    login(mockUser, mockToken);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    router.replace('/(tabs)');
+  };
+
   const handleSocialLogin = (provider: 'kakao' | 'naver' | 'apple') => {
     // TODO: Implement OAuth2 login
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -192,14 +206,22 @@ export default function LoginScreen() {
 
               <Button title="로그인" onPress={handleLogin} fullWidth />
 
-              {/* Developer mode button */}
+              {/* Developer mode buttons */}
               {isDevMode && (
-                <Button
-                  title="🛠️ 개발자 메뉴"
-                  onPress={() => setShowDevMenu(true)}
-                  variant="ghost"
-                  fullWidth
-                />
+                <>
+                  <Button
+                    title="🚀 로그인 우회"
+                    onPress={handleLoginBypass}
+                    variant="secondary"
+                    fullWidth
+                  />
+                  <Button
+                    title="🛠️ 개발자 메뉴"
+                    onPress={() => setShowDevMenu(true)}
+                    variant="ghost"
+                    fullWidth
+                  />
+                </>
               )}
 
               {/* Divider */}

@@ -126,36 +126,45 @@ export const Input: React.FC<InputProps> = ({
     }
   }, [onChangeText, hapticFeedback]);
 
-  const labelStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: labelPosition.value === 1 ? -28 : 0,
-      },
-      {
-        scale: labelPosition.value === 1 ? 0.85 : 1,
-      },
-    ],
-  }));
+  const labelStyle = useAnimatedStyle(() => {
+    'worklet';
+    return {
+      transform: [
+        {
+          translateY: labelPosition.value * -28,
+        },
+        {
+          scale: 1 - (labelPosition.value * 0.15),
+        },
+      ],
+    };
+  });
 
-  const containerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: borderScale.value }, { translateX: shakeTranslate.value }],
-    borderColor: error
-      ? colors.error
-      : success
-      ? colors.success
-      : borderColor.value === 1
-      ? colors.primary
-      : colors.text.tertiary,
-    shadowOpacity: borderColor.value * 0.3,
-    shadowColor: colors.primary,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-  }));
+  const containerStyle = useAnimatedStyle(() => {
+    'worklet';
+    return {
+      transform: [{ scale: borderScale.value }, { translateX: shakeTranslate.value }],
+      borderColor: error
+        ? colors.error
+        : success
+        ? colors.success
+        : borderColor.value === 1
+        ? colors.primary
+        : colors.text.tertiary,
+      shadowOpacity: borderColor.value * 0.3,
+      shadowColor: colors.primary,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 2 },
+    };
+  });
 
-  const checkmarkStyle = useAnimatedStyle(() => ({
-    opacity: checkmarkOpacity.value,
-    transform: [{ scale: checkmarkScale.value }],
-  }));
+  const checkmarkStyle = useAnimatedStyle(() => {
+    'worklet';
+    return {
+      opacity: checkmarkOpacity.value,
+      transform: [{ scale: checkmarkScale.value }],
+    };
+  });
 
   return (
     <View style={styles.wrapper}>
