@@ -1,9 +1,9 @@
 /**
  * Improved Hospital Card with ratings, reviews, and status
- * Optimized with React Best Practices
+ * Optimized with React Best Practices and expo-image
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui';
@@ -25,30 +25,51 @@ interface HospitalCardProps {
   onPress?: (hospitalId: string) => void;
 }
 
-// Rule 5.2: Memoized Star Rating Component
-const StarRating = React.memo(({ rating }: { rating: number }) => (
-  <View style={styles.stars}>
-    {[1, 2, 3, 4, 5].map((star) => (
-      <Ionicons
-        key={star}
-        name={star <= rating ? 'star' : 'star-outline'}
-        size={11}
-        color={star <= rating ? '#FFD700' : colors.text.tertiary}
-      />
-    ))}
-  </View>
-));
+// Memoized Star Rating Component with optimized star generation
+const STAR_INDICES = [1, 2, 3, 4, 5] as const;
 
-// Rule 5.2: Memoized Specialty Tags Component
-const SpecialtyTags = React.memo(({ specialties }: { specialties: string[] }) => (
-  <View style={styles.specialtiesRow}>
-    {specialties.slice(0, 3).map((specialty, index) => (
-      <View key={index} style={styles.specialtyTag}>
-        <Text style={styles.specialtyText}>{specialty}</Text>
-      </View>
-    ))}
-  </View>
-));
+const StarRating = React.memo(({ rating }: { rating: number }) => {
+  // Memoize stars array to avoid recreation on every render
+  const stars = useMemo(() =>
+    STAR_INDICES.map((star) => ({
+      key: star,
+      filled: star <= rating
+    })),
+    [rating]
+  );
+
+  return (
+    <View style={styles.stars}>
+      {stars.map(({ key, filled }) => (
+        <Ionicons
+          key={key}
+          name={filled ? 'star' : 'star-outline'}
+          size={11}
+          color={filled ? '#FFD700' : colors.text.tertiary}
+        />
+      ))}
+    </View>
+  );
+});
+
+// Memoized Specialty Tags Component with slice optimization
+const SpecialtyTags = React.memo(({ specialties }: { specialties: string[] }) => {
+  // Memoize sliced specialties to prevent recalculation
+  const displaySpecialties = useMemo(
+    () => specialties.slice(0, 3),
+    [specialties]
+  );
+
+  return (
+    <View style={styles.specialtiesRow}>
+      {displaySpecialties.map((specialty, index) => (
+        <View key={index} style={styles.specialtyTag}>
+          <Text style={styles.specialtyText}>{specialty}</Text>
+        </View>
+      ))}
+    </View>
+  );
+});
 
 const HospitalCard = React.memo(({ hospital, onPress }: HospitalCardProps) => {
   // Rule 5.5: Stable callback
@@ -120,7 +141,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: spacing.xs,
+    gap: spacing.sm,
     paddingHorizontal: 2,
     paddingTop: 16, // Ample top padding for breathing room
   },

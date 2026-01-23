@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kakao Map</title>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=__KAKAO_APP_KEY__&libraries=clusterer"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    .custom-overlay {
+      position: relative;
+      background: white;
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      white-space: nowrap;
+    }
+    .custom-overlay::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid white;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    let map;
+    let markers = {};
+    let clusterer;
+    let isMapReady = false;
+
+    // Initialize map
+    function initMap() {
+      try {
+        const container = document.getElementById('map');
+        const options = {
+          center: new kakao.maps.LatLng(37.5665, 126.9780), // Default to Seoul
+          level: 3
+        };
+        
+        map = new kakao.maps.Map(container, options);
+        
+        // Initialize clusterer
+        clusterer = new kakao.maps.MarkerClusterer({
+          map: map,
+          averageCenter: true,
+          minLevel: 5,
+          disableClickZoom: true,
+          gridSize: 60,
+          styles: [{
+            width: '53px',
+            height: '52px',
+            background: 'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTMiIGhlaWdodD0iNTIiIHZpZXdCb3g9IjAgMCA1MyA1MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjYuNSIgY3k9IjI2IiByPSIyNiIgZmlsbD0iIzQyQTVGNSIvPgo8L3N2Zz4=)',
+            backgroundSize: 'cover',
+            color: 'white',
+            textAlign: 'center',
+            lineHeight: '52px',
+            fontWeight: 'bold'
+          }]
+        });
+
+        isMapReady = true;
+        postMessage({ type: 'mapReady' });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    }
+
+    // Post message helper
+    function postMessage(data) {
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify(data));
+      }
+    }
+
+    // Add single marker
+    window.addMarker = function(id, lat, lng, title, type, extra) {
+      try {
+        if (!isMapReady) {
+          postMessage({ type: 'error', message: 'Map not ready' });
+          return;
+        }
+
+        const position = new kakao.maps.LatLng(lat, lng);
+        
+        // Create marker
+        const marker = new kakao.maps.Marker({
+          position: position,
+          title: title,
+          clickable: true
+        });
+
+        // Add click event
+        kakao.maps.event.addListener(marker, 'click', function() {
+          postMessage({
+            type: 'markerClick',
+            id: id,
+            lat: lat,
+            lng: lng,
+            title: title,
+            markerType: type,
+            extra: extra
+          });
+        });
+
+        markers[id] = marker;
+        clusterer.addMarker(marker);
+        
+        postMessage({ type: 'markerAdded', id: id });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Add multiple markers
+    window.addMarkers = function(markersData) {
+      try {
+        if (!isMapReady) {
+          postMessage({ type: 'error', message: 'Map not ready' });
+          return;
+        }
+
+        const newMarkers = markersData.map(data => {
+          const position = new kakao.maps.LatLng(data.lat, data.lng);
+          const marker = new kakao.maps.Marker({
+            position: position,
+            title: data.title,
+            clickable: true
+          });
+
+          kakao.maps.event.addListener(marker, 'click', function() {
+            postMessage({
+              type: 'markerClick',
+              id: data.id,
+              lat: data.lat,
+              lng: data.lng,
+              title: data.title,
+              markerType: data.type,
+              extra: data.extra
+            });
+          });
+
+          markers[data.id] = marker;
+          return marker;
+        });
+
+        clusterer.addMarkers(newMarkers);
+        postMessage({ type: 'markersAdded', count: newMarkers.length });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Set map center
+    window.setCenter = function(lat, lng, level) {
+      try {
+        if (!isMapReady) return;
+        
+        const position = new kakao.maps.LatLng(lat, lng);
+        map.setCenter(position);
+        
+        if (level !== undefined && level !== null) {
+          map.setLevel(level);
+        }
+        
+        postMessage({ type: 'centerChanged', lat: lat, lng: lng, level: level });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Set map level (zoom)
+    window.setLevel = function(level) {
+      try {
+        if (!isMapReady) return;
+        map.setLevel(level);
+        postMessage({ type: 'levelChanged', level: level });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Clear all markers
+    window.clearMarkers = function() {
+      try {
+        if (!isMapReady) return;
+        
+        clusterer.clear();
+        markers = {};
+        
+        postMessage({ type: 'markersCleared' });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Remove specific marker
+    window.removeMarker = function(id) {
+      try {
+        if (!isMapReady) return;
+        
+        const marker = markers[id];
+        if (marker) {
+          clusterer.removeMarker(marker);
+          delete markers[id];
+          postMessage({ type: 'markerRemoved', id: id });
+        }
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Get current map bounds
+    window.getBounds = function() {
+      try {
+        if (!isMapReady) return;
+        
+        const bounds = map.getBounds();
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+        
+        postMessage({
+          type: 'bounds',
+          southWest: { lat: sw.getLat(), lng: sw.getLng() },
+          northEast: { lat: ne.getLat(), lng: ne.getLng() }
+        });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Fit bounds to show all markers
+    window.fitBounds = function() {
+      try {
+        if (!isMapReady || Object.keys(markers).length === 0) return;
+        
+        const bounds = new kakao.maps.LatLngBounds();
+        Object.values(markers).forEach(marker => {
+          bounds.extend(marker.getPosition());
+        });
+        
+        map.setBounds(bounds);
+        postMessage({ type: 'boundsFitted' });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Pan to location with animation
+    window.panTo = function(lat, lng) {
+      try {
+        if (!isMapReady) return;
+        
+        const position = new kakao.maps.LatLng(lat, lng);
+        map.panTo(position);
+        
+        postMessage({ type: 'pannedTo', lat: lat, lng: lng });
+      } catch (error) {
+        postMessage({ type: 'error', message: error.message });
+      }
+    };
+
+    // Add map event listeners
+    function setupMapListeners() {
+      if (!isMapReady) return;
+
+      // Idle event (after map movement stops)
+      kakao.maps.event.addListener(map, 'idle', function() {
+        const center = map.getCenter();
+        const level = map.getLevel();
+        
+        postMessage({
+          type: 'idle',
+          center: { lat: center.getLat(), lng: center.getLng() },
+          level: level
+        });
+      });
+
+      // Zoom changed
+      kakao.maps.event.addListener(map, 'zoom_changed', function() {
+        const level = map.getLevel();
+        postMessage({ type: 'zoomChanged', level: level });
+      });
+
+      // Center changed
+      kakao.maps.event.addListener(map, 'center_changed', function() {
+        const center = map.getCenter();
+        postMessage({
+          type: 'centerChanged',
+          lat: center.getLat(),
+          lng: center.getLng()
+        });
+      });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+        setupMapListeners();
+      });
+    } else {
+      initMap();
+      setupMapListeners();
+    }
+  </script>
+</body>
+</html>

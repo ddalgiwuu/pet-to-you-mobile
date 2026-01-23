@@ -1,0 +1,87 @@
+graph TB
+    subgraph "Client Layer"
+        MobileApp["Mobile App<br/>(React Native)"]
+    end
+
+    subgraph "Gateway Layer"
+        APIGateway["API Gateway<br/>(AWS ALB + NGINX)"]
+        CDN["CDN<br/>(CloudFront)"]
+    end
+
+    subgraph "Application Layer"
+        AuthService["Auth Service<br/>(소셜 로그인, JWT)"]
+        HospitalService["Hospital Service<br/>(검색, 필터)"]
+        AppointmentService["Appointment Service<br/>(예약 관리)"]
+        PetService["Pet Service<br/>(반려동물 관리)"]
+        HealthService["Health Service<br/>(건강수첩)"]
+        NotificationService["Notification Service<br/>(푸시 알림)"]
+    end
+
+    subgraph "Data Layer"
+        PostgreSQL["PostgreSQL<br/>(RDS Multi-AZ)"]
+        Redis["Redis<br/>(ElastiCache)"]
+        S3["S3<br/>(파일 저장소)"]
+    end
+
+    subgraph "External Services"
+        KakaoSDK["Kakao OAuth"]
+        AppleSDK["Apple OAuth"]
+        NaverSDK["Naver OAuth"]
+        FCM["FCM<br/>(Push Notification)"]
+        APNs["APNs<br/>(iOS Push)"]
+    end
+
+    subgraph "Monitoring & Logging"
+        CloudWatch["CloudWatch<br/>(로그 & 메트릭)"]
+        Alarms["CloudWatch Alarms"]
+    end
+
+    MobileApp -->|HTTPS| APIGateway
+    MobileApp -->|Static Assets| CDN
+
+    APIGateway --> AuthService
+    APIGateway --> HospitalService
+    APIGateway --> AppointmentService
+    APIGateway --> PetService
+    APIGateway --> HealthService
+    APIGateway --> NotificationService
+
+    AuthService --> KakaoSDK
+    AuthService --> AppleSDK
+    AuthService --> NaverSDK
+    AuthService --> PostgreSQL
+    AuthService --> Redis
+
+    HospitalService --> PostgreSQL
+    HospitalService --> Redis
+
+    AppointmentService --> PostgreSQL
+    AppointmentService --> Redis
+    AppointmentService --> NotificationService
+
+    PetService --> PostgreSQL
+    PetService --> S3
+
+    HealthService --> PostgreSQL
+
+    NotificationService --> FCM
+    NotificationService --> APNs
+    NotificationService --> PostgreSQL
+
+    CDN --> S3
+
+    AuthService -.->|Logs| CloudWatch
+    HospitalService -.->|Logs| CloudWatch
+    AppointmentService -.->|Logs| CloudWatch
+    PetService -.->|Logs| CloudWatch
+    HealthService -.->|Logs| CloudWatch
+    NotificationService -.->|Logs| CloudWatch
+
+    CloudWatch -->|Triggers| Alarms
+
+    style MobileApp fill:#e3f2fd
+    style APIGateway fill:#fff9c4
+    style PostgreSQL fill:#c8e6c9
+    style Redis fill:#ffccbc
+    style S3 fill:#f0f4c3
+    style CloudWatch fill:#e1bee7

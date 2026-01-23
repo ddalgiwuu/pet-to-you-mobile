@@ -9,43 +9,14 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { HomeHeader, PetQuickCard, UpcomingBooking, HospitalCard, HealthTips } from '@/components/home';
 import { colors, typography, spacing, borderRadius } from '@/constants/theme';
+import { useBookings } from '@/hooks/useBookings';
+import { MOCK_HOSPITALS } from '@/constants/mockData';
 
 const SERVICES = [
   { id: 1, title: '병원 찾기', icon: 'medical', route: '/(tabs)/hospitals', color: '#FF6B9D' },
   { id: 2, title: '예약 관리', icon: 'calendar', route: '/(tabs)/bookings', color: '#4ECDC4' },
-  { id: 3, title: '건강 기록', icon: 'document-text', route: null, color: '#FFE66D' },
-  { id: 4, title: '응급 상황', icon: 'alert-circle', route: null, color: '#FF6B6B' },
-];
-
-// Mock hospital data
-const MOCK_HOSPITALS = [
-  {
-    id: '1',
-    name: '24시 행복 동물병원',
-    distance: '0.3km',
-    rating: 4.8,
-    reviewCount: 127,
-    isOpen: true,
-    specialties: ['외과', '내과', '24시간'],
-  },
-  {
-    id: '2',
-    name: '사랑 동물병원',
-    distance: '0.5km',
-    rating: 4.6,
-    reviewCount: 89,
-    isOpen: true,
-    specialties: ['피부과', '치과'],
-  },
-  {
-    id: '3',
-    name: '우리 동물병원',
-    distance: '0.8km',
-    rating: 4.5,
-    reviewCount: 64,
-    isOpen: false,
-    specialties: ['정형외과', '안과'],
-  },
+  { id: 3, title: '건강 기록', icon: 'document-text', route: '/health/records', color: '#FFE66D' },
+  { id: 4, title: '응급 상황', icon: 'alert-circle', route: '/emergency', color: '#FF6B6B' },
 ];
 
 // Memoized Service Card Component (Rule 5.2: Extract to Memoized Components)
@@ -74,15 +45,17 @@ const ServiceCard = React.memo(({ service, index, onPress }: {
 export default function HomeScreen() {
   const router = useRouter();
   const [refreshing, setRefreshing] = React.useState(false);
-  
-  // TODO: Replace with actual booking data from useUpcomingBookings() hook
-  const hasUpcomingBookings = false; // Will be true when real data is loaded
+
+  // Get upcoming bookings data
+  const { data: bookings = [], refetch: refetchBookings } = useBookings('upcoming');
+  const hasUpcomingBookings = bookings.length > 0;
 
   // Rule 5.5: Use Functional setState Updates
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 2000);
-  }, []);
+    await refetchBookings();
+    setTimeout(() => setRefreshing(false), 1000);
+  }, [refetchBookings]);
 
   // Rule 5.5: Stable callback with useCallback
   const handleServicePress = React.useCallback((route: string | null) => {
@@ -103,16 +76,20 @@ export default function HomeScreen() {
   }, [router]);
 
   const handlePetPress = React.useCallback((petId: string) => {
-    console.log('Pet pressed:', petId);
-  }, []);
+    router.push(`/(tabs)/pets/${petId}` as any);
+  }, [router]);
 
   const handleBookingPress = React.useCallback((bookingId: string) => {
-    console.log('Booking pressed:', bookingId);
-  }, []);
+    router.push('/(tabs)/bookings' as any);
+  }, [router]);
 
   const handleHospitalPress = React.useCallback((id: string) => {
-    console.log('Hospital pressed:', id);
-  }, []);
+    router.push(`/hospital/${id}` as any);
+  }, [router]);
+
+  const handleAddPet = React.useCallback(() => {
+    router.push('/pets/register' as any);
+  }, [router]);
 
   return (
     <View style={styles.container}>
@@ -129,12 +106,13 @@ export default function HomeScreen() {
       >
         {/* Pet Quick Access */}
         <PetQuickCard
-          onAddPet={() => {}}
+          onAddPet={handleAddPet}
           onPetPress={handlePetPress}
         />
 
         {/* Upcoming Booking */}
         <UpcomingBooking
+          bookings={bookings}
           onPress={handleBookingPress}
           onViewAll={handleBookingsPress}
         />

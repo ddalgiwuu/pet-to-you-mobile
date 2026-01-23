@@ -1,0 +1,134 @@
+graph TB
+    Start([사용자 앱 실행]) --> Login{로그인<br/>여부}
+
+    Login -->|미로그인| LoginScreen[로그인 화면]
+    Login -->|로그인됨| Home[홈 화면]
+    Login -->|게스트| GuestHome[홈 화면<br/>게스트 모드]
+
+    LoginScreen --> LoginMethod{로그인<br/>방법 선택}
+    LoginMethod --> KakaoLogin[카카오톡 로그인]
+    LoginMethod --> AppleLogin[Apple 로그인]
+    LoginMethod --> NaverLogin[네이버 로그인]
+    LoginMethod --> GuestMode[로그인 없이<br/>둘러보기]
+
+    KakaoLogin --> Home
+    AppleLogin --> Home
+    NaverLogin --> Home
+    GuestMode --> GuestHome
+
+    Home --> NavTabs{하단 탭<br/>네비게이션}
+    GuestHome --> LimitedSearch[병원 검색만<br/>가능]
+
+    NavTabs --> TabHome[홈 탭]
+    NavTabs --> TabReservation[예약 탭]
+    NavTabs --> TabHospital[병원 탭]
+    NavTabs --> TabHealth[건강수첩 탭]
+    NavTabs --> TabFavorites[관심목록 탭]
+    NavTabs --> TabMyPage[마이페이지 탭]
+
+    TabHome --> HomeContent[홈 화면 컨텐츠]
+    HomeContent --> Banner[배너]
+    HomeContent --> SearchBar[검색바]
+    HomeContent --> HospitalList[영업 중인<br/>병원 목록]
+
+    SearchBar --> SearchScreen[병원 검색 화면]
+    TabHospital --> SearchScreen
+    LimitedSearch --> SearchScreen
+
+    SearchScreen --> SearchInput[검색어 입력]
+    SearchScreen --> FilterButton[필터 버튼]
+
+    FilterButton --> FilterModal[필터 모달]
+    FilterModal --> FilterTime[진료시간 필터]
+    FilterModal --> FilterSpecialty[전문분야 필터]
+    FilterModal --> FilterDistance[거리 필터]
+    FilterModal --> ApplyFilter[필터 적용]
+
+    ApplyFilter --> SearchResults[검색 결과]
+    SearchInput --> SearchResults
+    HospitalList --> SearchResults
+
+    SearchResults --> HospitalCard[병원 카드 선택]
+    HospitalCard --> HospitalDetail[병원 상세 정보]
+
+    HospitalDetail --> HospitalInfo{병원 정보<br/>확인}
+    HospitalInfo --> HospitalName[병원명]
+    HospitalInfo --> HospitalAddress[주소, 거리]
+    HospitalInfo --> HospitalRating[평점, 리뷰]
+    HospitalInfo --> HospitalSpecialty[전문분야]
+    HospitalInfo --> HospitalHours[진료시간]
+
+    HospitalDetail --> BookingButton[예약하기 버튼]
+
+    BookingButton --> PetSelection[반려동물 선택]
+    PetSelection --> HasPet{반려동물<br/>등록 여부}
+
+    HasPet -->|등록됨| SelectPet[반려동물 선택]
+    HasPet -->|미등록| RegisterPet[반려동물 등록]
+
+    RegisterPet --> PetInfo[반려동물 정보 입력]
+    PetInfo --> SelectSpecies{동물 종류}
+    SelectSpecies --> SelectDogBreed[견종 선택]
+    SelectSpecies --> SelectCatBreed[묘종 선택]
+    SelectSpecies --> OtherPet[기타]
+
+    SelectDogBreed --> PetProfile[프로필 생성]
+    SelectCatBreed --> PetProfile
+    OtherPet --> PetProfile
+    PetProfile --> SelectPet
+
+    SelectPet --> BookingForm[예약 정보 입력]
+
+    BookingForm --> InputDateTime[날짜 & 시간]
+    BookingForm --> InputSymptoms[진료 과목]
+    BookingForm --> InputNotes[증상 & 특이사항]
+
+    InputDateTime --> ConfirmBooking[예약 정보 확인]
+    InputSymptoms --> ConfirmBooking
+    InputNotes --> ConfirmBooking
+
+    ConfirmBooking --> SubmitBooking[예약 제출]
+    SubmitBooking --> LoadingBooking[예약확인중<br/>로딩 화면]
+
+    LoadingBooking --> BookingResult{병원 확인<br/>결과}
+
+    BookingResult -->|확정| BookingSuccess[예약 완료 화면]
+    BookingResult -->|거부| BookingFailed[예약 실패]
+
+    BookingSuccess --> AfterBooking{다음 액션}
+    AfterBooking --> BackToHome[홈으로]
+    AfterBooking --> ViewBookings[예약 내역 보기]
+
+    BookingFailed --> RetryBooking[다시 예약하기]
+    RetryBooking --> BookingForm
+
+    ViewBookings --> TabReservation
+    TabReservation --> BookingList[예약 내역 리스트]
+    BookingList --> BookingDetail[예약 상세]
+    BookingDetail --> CancelBooking[예약 취소]
+
+    TabHealth --> HealthPassport[건강수첩]
+    HealthPassport --> HealthRecords[진료 기록 조회]
+    HealthRecords --> RecordDetail[기록 상세]
+
+    TabFavorites --> FavoriteList[즐겨찾기 목록]
+    FavoriteList --> FavoriteHospital[병원 선택]
+    FavoriteHospital --> HospitalDetail
+
+    TabMyPage --> MyPage[마이페이지]
+    MyPage --> ProfileSettings[프로필 설정]
+    MyPage --> NotificationSettings[알림 설정]
+    MyPage --> MyBookings[예약 내역]
+    MyPage --> Support[고객 지원]
+    MyPage --> Logout[로그아웃]
+
+    BackToHome --> Home
+    Logout --> LoginScreen
+
+    style Start fill:#e1f5e1
+    style BookingSuccess fill:#e1f5e1
+    style BookingFailed fill:#ffe1e1
+    style Home fill:#e3f2fd
+    style LoginScreen fill:#fff9c4
+    style FilterModal fill:#f3e5f5
+    style HealthPassport fill:#e0f2f1

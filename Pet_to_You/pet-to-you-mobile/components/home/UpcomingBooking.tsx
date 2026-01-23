@@ -12,27 +12,25 @@ import { colors, typography, spacing, borderRadius, shadows } from '@/constants/
 
 interface Booking {
   id: string;
+  hospitalId: string;
   hospitalName: string;
+  hospitalAddress: string;
+  petId: string;
+  petName: string;
   date: string;
   time: string;
-  petName: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
+  serviceType: string;
+  status: 'upcoming' | 'completed' | 'cancelled';
+  symptoms?: string;
+  notes?: string;
+  createdAt: string;
 }
 
 interface UpcomingBookingProps {
+  bookings?: Booking[];
   onPress?: (bookingId: string) => void;
   onViewAll?: () => void;
 }
-
-// Mock data - replace with useUpcomingBookings() SWR hook
-const MOCK_BOOKING: Booking = {
-  id: '1',
-  hospitalName: '24시 행복 동물병원',
-  date: '2024년 1월 20일',
-  time: '오후 2:30',
-  petName: '멍멍이',
-  status: 'confirmed',
-};
 
 // Rule 5.2: Memoized Empty State Component
 const EmptyState = React.memo(() => (
@@ -100,25 +98,50 @@ const BookingCard = React.memo(({
   );
 });
 
-export default function UpcomingBooking({ onPress, onViewAll }: UpcomingBookingProps) {
-  // TODO: Replace with actual booking data from useUpcomingBookings() hook
-  const hasBooking = false; // Set to false by default - will be true when real data is loaded
-
+export default function UpcomingBooking({ bookings = [], onPress, onViewAll }: UpcomingBookingProps) {
   // Rule 7.8: Early Return
-  if (!hasBooking) {
+  if (!bookings || bookings.length === 0) {
     return <EmptyState />;
   }
+
+  // Get the first upcoming booking
+  const firstBooking = bookings[0];
+
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${month}월 ${day}일`;
+  };
+
+  // Format time for display
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours);
+    const period = hour >= 12 ? '오후' : '오전';
+    const displayHour = hour > 12 ? hour - 12 : hour;
+    return `${period} ${displayHour}:${minutes}`;
+  };
+
+  const displayBooking = {
+    ...firstBooking,
+    date: formatDate(firstBooking.date),
+    time: formatTime(firstBooking.time),
+  };
 
   return (
     <Animated.View entering={FadeInDown.delay(400)} style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>다가오는 예약</Text>
-        <Pressable onPress={onViewAll}>
-          <Text style={styles.viewAll}>전체보기</Text>
-        </Pressable>
+        {bookings.length > 1 && (
+          <Pressable onPress={onViewAll}>
+            <Text style={styles.viewAll}>전체보기 ({bookings.length})</Text>
+          </Pressable>
+        )}
       </View>
 
-      <BookingCard booking={MOCK_BOOKING} onPress={onPress} />
+      <BookingCard booking={displayBooking} onPress={onPress} />
     </Animated.View>
   );
 }

@@ -1,0 +1,328 @@
+erDiagram
+    User ||--o{ Pet : "owns"
+    User ||--o{ Appointment : "makes"
+    User ||--o{ Favorite : "has"
+    User ||--o{ Review : "writes"
+
+    Pet ||--o{ Appointment : "for"
+    Pet ||--o{ HealthRecord : "has"
+
+    Hospital ||--o{ Appointment : "receives"
+    Hospital ||--o{ Favorite : "favorited_by"
+    Hospital ||--o{ Review : "reviewed_by"
+    Hospital }|--|| HospitalDetail : "has"
+
+    Appointment ||--|| HealthRecord : "creates"
+
+    User {
+        uuid id PK "고유 식별자"
+        string email UK "이메일 (소셜 로그인)"
+        string name "사용자 이름"
+        string phone "전화번호"
+        string profileImageUrl "프로필 사진 URL"
+        enum authProvider "인증 제공자: KAKAO, APPLE, NAVER"
+        string authProviderId "소셜 로그인 ID"
+        timestamp createdAt "생성 일시"
+        timestamp updatedAt "수정 일시"
+        timestamp lastLoginAt "마지막 로그인"
+        boolean isActive "활성 여부"
+    }
+
+    Pet {
+        uuid id PK "고유 식별자"
+        uuid userId FK "보호자 ID"
+        string name "반려동물 이름"
+        enum species "종류: DOG, CAT, OTHER"
+        string breed "품종"
+        date birthDate "생년월일"
+        enum gender "성별: MALE, FEMALE, UNKNOWN"
+        float weight "무게 (kg)"
+        boolean isNeutered "중성화 여부"
+        string profileImageUrl "프로필 사진 URL"
+        text specialNotes "특이사항 (알러지, 지병)"
+        timestamp createdAt "등록 일시"
+        timestamp updatedAt "수정 일시"
+        boolean isDeleted "삭제 여부 (소프트 삭제)"
+    }
+
+    Hospital {
+        uuid id PK "고유 식별자"
+        string name "병원명"
+        string address "주소"
+        point location "위치 (위도, 경도)"
+        string phone "전화번호"
+        text description "병원 소개"
+        string imageUrl "대표 이미지 URL"
+        json openingHours "영업시간 JSON"
+        boolean is24Hours "24시 운영 여부"
+        timestamp createdAt "등록 일시"
+        timestamp updatedAt "수정 일시"
+        boolean isPartner "제휴 병원 여부"
+        boolean isActive "활성 여부"
+    }
+
+    HospitalDetail {
+        uuid id PK "고유 식별자"
+        uuid hospitalId FK "병원 ID"
+        string[] specialties "전문분야 배열"
+        text facilities "시설 정보"
+        text parkingInfo "주차 정보"
+        float averageRating "평균 평점"
+        int reviewCount "리뷰 수"
+        json priceRange "가격대 정보"
+    }
+
+    Appointment {
+        uuid id PK "고유 식별자"
+        uuid userId FK "사용자 ID"
+        uuid petId FK "반려동물 ID"
+        uuid hospitalId FK "병원 ID"
+        timestamp appointmentDateTime "예약 날짜 & 시간"
+        enum status "상태: PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW"
+        enum treatmentType "진료 과목: GENERAL, VACCINATION, SURGERY, EXAMINATION, EMERGENCY"
+        text symptoms "증상"
+        text specialNotes "특이사항"
+        text cancellationReason "취소 사유"
+        timestamp createdAt "예약 생성 일시"
+        timestamp updatedAt "수정 일시"
+        timestamp confirmedAt "예약 확정 일시"
+        timestamp completedAt "진료 완료 일시"
+        timestamp cancelledAt "취소 일시"
+    }
+
+    HealthRecord {
+        uuid id PK "고유 식별자"
+        uuid petId FK "반려동물 ID"
+        uuid appointmentId FK "예약 ID (옵션)"
+        uuid hospitalId FK "병원 ID"
+        date visitDate "진료 날짜"
+        enum recordType "기록 유형: TREATMENT, VACCINATION, EXAMINATION"
+        string diagnosis "진단명"
+        text treatment "치료 내용"
+        text prescription "처방 내용"
+        decimal cost "진료 비용"
+        text notes "메모"
+        timestamp createdAt "생성 일시"
+        timestamp updatedAt "수정 일시"
+    }
+
+    Favorite {
+        uuid id PK "고유 식별자"
+        uuid userId FK "사용자 ID"
+        uuid hospitalId FK "병원 ID"
+        timestamp createdAt "추가 일시"
+    }
+
+    Review {
+        uuid id PK "고유 식별자"
+        uuid userId FK "작성자 ID"
+        uuid hospitalId FK "병원 ID"
+        uuid appointmentId FK "예약 ID"
+        int rating "평점 (1-5)"
+        text content "리뷰 내용"
+        string[] imageUrls "리뷰 이미지 URL 배열"
+        timestamp createdAt "작성 일시"
+        timestamp updatedAt "수정 일시"
+        boolean isReported "신고 여부"
+    }
+
+    Notification {
+        uuid id PK "고유 식별자"
+        uuid userId FK "사용자 ID"
+        enum type "알림 유형"
+        string title "알림 제목"
+        text content "알림 내용"
+        json data "추가 데이터"
+        boolean isRead "읽음 여부"
+        timestamp createdAt "생성 일시"
+        timestamp readAt "읽은 일시"
+    }
+
+    Daycare ||--o{ DaycareBooking : "receives"
+    Daycare ||--|| FacilityCertification : "has"
+    User ||--o{ DaycareBooking : "makes"
+    Pet ||--o{ DaycareBooking : "for"
+    DaycareBooking ||--o{ DaycareActivity : "has"
+
+    Daycare {
+        uuid id PK
+        string name
+        string address
+        point location
+        string phone
+        json priceInfo
+        json facilityInfo
+        string[] programs
+        boolean pickupService
+        float averageRating
+        int reviewCount
+        timestamp createdAt
+        boolean isActive
+    }
+
+    DaycareBooking {
+        uuid id PK
+        uuid userId FK
+        uuid petId FK
+        uuid daycareId FK
+        date bookingDate
+        time startTime
+        time endTime
+        enum bookingType
+        boolean pickupRequired
+        boolean dropoffRequired
+        text specialNotes
+        enum status
+        decimal totalPrice
+        timestamp createdAt
+    }
+
+    DaycareActivity {
+        uuid id PK
+        uuid bookingId FK
+        uuid petId FK
+        enum activityType
+        timestamp activityTime
+        int duration
+        text notes
+        string[] photoUrls
+        timestamp createdAt
+    }
+
+    FacilityCertification {
+        uuid id PK
+        uuid facilityId FK
+        enum facilityType
+        enum certificationType
+        string certificationNumber
+        date issuedDate
+        date expiryDate
+        enum verificationStatus
+        string documentUrl
+        timestamp verifiedAt
+    }
+
+    Shelter ||--o{ AdoptionAnimal : "protects"
+    Shelter ||--|| ShelterCertification : "has"
+    User ||--o{ AdoptionApplication : "submits"
+    AdoptionAnimal ||--o{ AdoptionApplication : "for"
+    Shelter ||--o{ AdoptionApplication : "receives"
+
+    Shelter {
+        uuid id PK
+        string name
+        string address
+        point location
+        enum type
+        string operatorName
+        int establishedYear
+        string licenseNumber
+        boolean licenseVerified
+        float adoptionSuccessRate
+        int reportCount
+        json reportHistory
+        enum verificationStatus
+        timestamp createdAt
+    }
+
+    AdoptionAnimal {
+        uuid id PK
+        uuid shelterId FK
+        string name
+        enum species
+        string breed
+        int age
+        enum gender
+        enum size
+        string[] profilePhotoUrls
+        string videoUrl
+        json healthInfo
+        json personality
+        text specialNeeds
+        date rescueDate
+        boolean availableForAdoption
+        boolean isAdopted
+        timestamp adoptedAt
+        enum urgency
+    }
+
+    AdoptionApplication {
+        uuid id PK
+        uuid userId FK
+        uuid animalId FK
+        uuid shelterId FK
+        enum status
+        json applicantInfo
+        json housingInfo
+        json familyInfo
+        text adoptionReason
+        timestamp consultationDate
+        text rejectionReason
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    ShelterCertification {
+        uuid id PK
+        uuid shelterId FK
+        string businessLicenseNumber
+        boolean businessLicenseVerified
+        string licenseDocumentUrl
+        json safetyInspection
+        json operationHistory
+        int totalAdoptions
+        int reportCount
+        json reportDetails
+        timestamp verifiedAt
+    }
+
+    Pet ||--o{ PetInsurance : "covered_by"
+    User ||--o{ InsuranceClaim : "submits"
+    Pet ||--o{ InsuranceClaim : "for"
+    HealthRecord ||--o{ InsuranceClaim : "supports"
+
+    InsuranceProduct {
+        uuid id PK
+        string insurerName
+        string productName
+        decimal monthlyPremium
+        decimal annualLimit
+        float deductibleRate
+        int waitingPeriod
+        string[] coverageTypes
+        int minAge
+        int maxAge
+        text description
+        boolean isActive
+    }
+
+    PetInsurance {
+        uuid id PK
+        uuid userId FK
+        uuid petId FK
+        uuid insuranceProductId FK
+        string policyNumber
+        date startDate
+        date endDate
+        enum status
+        decimal monthlyPremium
+        decimal annualLimit
+        float deductibleRate
+        timestamp createdAt
+    }
+
+    InsuranceClaim {
+        uuid id PK
+        uuid userId FK
+        uuid petId FK
+        uuid petInsuranceId FK
+        uuid[] healthRecordIds FK
+        enum status
+        decimal claimAmount
+        decimal approvedAmount
+        text rejectionReason
+        string documentUrl
+        timestamp submittedAt
+        timestamp approvedAt
+        timestamp paidAt
+    }

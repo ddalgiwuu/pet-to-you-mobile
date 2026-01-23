@@ -57,6 +57,13 @@ export default function SplashScreen() {
   }, []);
 
   const navigate = () => {
+    // Development: Skip auth and go directly to tabs
+    if (__DEV__) {
+      router.replace('/(tabs)');
+      return;
+    }
+
+    // Production flow
     if (!hasCompletedOnboarding) {
       router.replace('/(auth)/onboarding');
     } else if (!isAuthenticated) {

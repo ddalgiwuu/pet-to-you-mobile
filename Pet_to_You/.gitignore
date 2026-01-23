@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Testing
+coverage/
+.nyc_output/
+
+# Production
+build/
+dist/
+.next/
+out/
+
+# Misc
+.DS_Store
+*.log
+*.pid
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+
+# Expo
+.expo/
+.expo-shared/
+expo.pid
+fresh-metro.log
+expo-*.log
+
+# React Native
+.react-native/
+
+# Serena
+.serena/
+
+# Temporary
+*.tmp
+*.temp
+.cache/
