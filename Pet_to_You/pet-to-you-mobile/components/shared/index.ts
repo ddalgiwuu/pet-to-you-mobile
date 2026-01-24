@@ -4,6 +4,8 @@ export { ListMapToggle } from './ListMapToggle';
 export { SearchBar } from './SearchBar';
 export { FilterSheet } from './FilterSheet';
 export { LocationCard } from './LocationCard';
+export { default as FullscreenMapModal } from './FullscreenMapModal';
+export { default as LocationChip } from './LocationChip';
 
 export type { MapMarker, MapCenter } from './SimpleMapView';
 export type { ViewMode } from './ListMapToggle';
