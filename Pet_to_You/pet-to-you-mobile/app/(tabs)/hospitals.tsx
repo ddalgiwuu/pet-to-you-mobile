@@ -21,6 +21,7 @@ import { FlatList as FlashList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 
 import {
   ListMapToggle,
@@ -31,6 +32,8 @@ import {
   ViewMode,
   MapMarker,
   FilterGroup,
+  LocationChip,
+  FullscreenMapModal,
 } from '@/components/shared';
 import { HospitalListItem } from '@/components/hospital';
 import { useHospitals } from '@/hooks/useHospitals';
@@ -38,6 +41,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { useKakaoMap } from '@/hooks/useKakaoMap';
 import { useFilterStore, selectHospitalFilters, selectSearchQuery, selectSortBy } from '@/store/filterStore';
 import config from '@/constants/config';
+import { getShortDistrict } from '@/services/geocoding';
 
 const SORT_OPTIONS = [
   { id: 'distance', label: '거리순', icon: 'location' as const },
@@ -46,9 +50,14 @@ const SORT_OPTIONS = [
 ];
 
 export default function HospitalsScreen() {
+  // Hooks
+  const router = useRouter();
+
   // State
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [showSortSheet, setShowSortSheet] = useState(false);
+  const [mapModalVisible, setMapModalVisible] = useState(false);
+  const [district, setDistrict] = useState<string>('위치 확인 중...');
   const filterSheetRef = useRef<FilterSheetRef>(null);
 
   // Hooks
@@ -89,6 +98,7 @@ export default function HospitalsScreen() {
   // Convert hospitals to map markers
   useEffect(() => {
     if (hospitals.length > 0) {
+      console.log(`Converting ${hospitals.length} hospitals to map markers`);
       const markers: MapMarker[] = hospitals.map((hospital) => ({
         id: hospital.id,
         lat: hospital.latitude,
@@ -97,7 +107,8 @@ export default function HospitalsScreen() {
         type: 'hospital',
         extra: hospital,
       }));
-      
+
+      console.log('Sample marker:', markers[0]);
       clearMarkers();
       addMarkers(markers);
     }
@@ -113,6 +124,15 @@ export default function HospitalsScreen() {
       });
     }
   }, [location, center, setCenter]);
+
+  // Get district name from GPS coordinates
+  useEffect(() => {
+    if (location) {
+      getShortDistrict(location)
+        .then((districtName) => setDistrict(districtName))
+        .catch(() => setDistrict('위치 확인 실패'));
+    }
+  }, [location]);
 
   // Filter groups for FilterSheet
   const filterGroups: FilterGroup[] = useMemo(
@@ -224,8 +244,10 @@ export default function HospitalsScreen() {
   // Handle marker press in map
   const handleMarkerPress = useCallback((marker: MapMarker) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Can show bottom sheet with hospital info or navigate to detail
-  }, []);
+    console.log('Marker pressed:', marker.id, marker.title);
+    // Navigate to hospital detail
+    router.push(`/hospital/${marker.id}`);
+  }, [router]);
 
   // Get active filter count
   const activeFilterCount = useMemo(() => {
@@ -377,20 +399,37 @@ export default function HospitalsScreen() {
         </View>
       )}
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>병원 찾기</Text>
-        
-        {/* Search Bar */}
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder="병원 이름 검색"
-          style={styles.searchBar}
-        />
+      <Animated.ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        stickyHeaderIndices={[1]}
+        bounces={true}
+        bouncesZoom={false}
+        decelerationRate="normal"
+      >
+        {/* Header - Collapsible */}
+        <View style={styles.header}>
+          <Text style={styles.title}>병원 찾기</Text>
+          {location && (
+            <View style={styles.locationDisplay}>
+              <Ionicons name="location" size={16} color={colors.primary} />
+              <Text style={styles.locationText}>{district}</Text>
+            </View>
+          )}
+        </View>
 
-        {/* Controls Row */}
-        <View style={styles.controlsRow}>
+        {/* Search Bar - Sticky */}
+        <View style={styles.searchSection}>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="병원 이름 검색"
+            style={styles.searchBar}
+          />
+
+          {/* Controls Row */}
+          <View style={styles.controlsRow}>
           <ListMapToggle mode={viewMode} onModeChange={setViewMode} />
 
           <View style={styles.rightControls}>
@@ -463,10 +502,11 @@ export default function HospitalsScreen() {
             ))}
           </Animated.View>
         )}
-      </View>
+        </View>
 
-      {/* Content */}
-      {renderContent()}
+        {/* Content */}
+        {renderContent()}
+      </Animated.ScrollView>
 
       {/* Filter Bottom Sheet */}
       <FilterSheet
@@ -476,6 +516,22 @@ export default function HospitalsScreen() {
         onReset={resetHospitalFilters}
         onApply={() => filterSheetRef.current?.close()}
       />
+
+      {/* Fullscreen Map Modal */}
+      {location && (
+        <FullscreenMapModal
+          visible={mapModalVisible}
+          onClose={() => setMapModalVisible(false)}
+          latitude={location.latitude}
+          longitude={location.longitude}
+          markers={hospitals.map(h => ({
+            id: h.id,
+            name: h.name,
+            lat: h.latitude,
+            lng: h.longitude,
+          }))}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -512,19 +568,38 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  scrollContainer: {
+    flex: 1,
+  },
   header: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+  },
+  locationDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  locationText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text.secondary,
+  },
+  searchSection: {
     backgroundColor: '#fff',
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 16,
   },
   searchBar: {
     marginBottom: 12,

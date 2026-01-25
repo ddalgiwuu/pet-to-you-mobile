@@ -12,7 +12,7 @@ import { colors, typography, spacing, borderRadius } from '@/constants/theme';
 interface Hospital {
   id: string;
   name: string;
-  distance: string;
+  distance: number; // Changed to number
   rating: number;
   reviewCount: number;
   isOpen: boolean;
@@ -77,6 +77,16 @@ const HospitalCard = React.memo(({ hospital, onPress }: HospitalCardProps) => {
     onPress?.(hospital.id);
   }, [hospital.id, onPress]);
 
+  // Format distance properly
+  const formattedDistance = useMemo(() => {
+    if (typeof hospital.distance === 'number') {
+      return hospital.distance < 1
+        ? `${(hospital.distance * 1000).toFixed(0)}m`
+        : `${hospital.distance.toFixed(1)}km`;
+    }
+    return hospital.distance;
+  }, [hospital.distance]);
+
   return (
     <Pressable onPress={handlePress}>
       <Card style={styles.card} gradientBorder={false}>
@@ -86,8 +96,8 @@ const HospitalCard = React.memo(({ hospital, onPress }: HospitalCardProps) => {
             <Ionicons name="medical" size={18} color={colors.primary} />
           </View>
           <View style={styles.headerInfo}>
-            <Text 
-              style={styles.hospitalName} 
+            <Text
+              style={styles.hospitalName}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -95,7 +105,7 @@ const HospitalCard = React.memo(({ hospital, onPress }: HospitalCardProps) => {
             </Text>
             <View style={styles.distanceRow}>
               <Ionicons name="location" size={11} color={colors.text.secondary} />
-              <Text style={styles.distance}>{hospital.distance}</Text>
+              <Text style={styles.distance}>{formattedDistance}</Text>
             </View>
           </View>
 
@@ -134,9 +144,10 @@ export default HospitalCard;
 
 const styles = StyleSheet.create({
   card: {
-    width: 300, // Increased width to prevent corner text cutoff
+    width: '100%', // Flexible width for Bento grid
     padding: 0, // Remove duplicate padding (Card component has default padding: 16)
     gap: 10, // Balanced gap for optimal vertical distribution
+    minHeight: 200,
   },
   header: {
     flexDirection: 'row',

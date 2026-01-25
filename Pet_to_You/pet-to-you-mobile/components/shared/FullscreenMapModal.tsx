@@ -238,8 +238,8 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
       >
         <Animated.View
           style={styles.mapContainer}
-          entering={SlideInDown.springify().damping(20).stiffness(90)}
-          exiting={SlideOutDown.springify().damping(20).stiffness(90)}
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(200)}
         >
           <WebView
             ref={webViewRef}

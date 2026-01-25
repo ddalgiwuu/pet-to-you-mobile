@@ -370,6 +370,9 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
       showsVerticalScrollIndicator={false}
       stickyHeaderIndices={[2]}
       scrollEventThrottle={16}
+      bounces={true}
+      bouncesZoom={false}
+      decelerationRate="normal"
     >
       {/* Hero Images - Larger */}
       <View style={styles.heroContainer}>
