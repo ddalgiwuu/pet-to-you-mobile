@@ -1,12 +1,11 @@
 /**
- * Hospital Detail Screen
+ * Hospital Detail Screen - Clean Wrapper
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -15,33 +14,22 @@ import {
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-import { HospitalDetail, HospitalReviews } from '@/components/hospital';
-import { useHospitalById, useHospitalReviews } from '@/hooks/useHospitals';
-
-const TAB_OPTIONS = ['정보', '리뷰'] as const;
-type TabType = typeof TAB_OPTIONS[number];
+import { HospitalDetail } from '@/components/hospital';
+import { useHospitalById } from '@/hooks/useHospitals';
+import { colors } from '@/constants/theme';
 
 export default function HospitalDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>('정보');
-  const [reviewPage, setReviewPage] = useState(1);
 
-  // Fetch hospital data
   const {
     data: hospital,
-    isLoading: isLoadingHospital,
-    error: hospitalError,
+    isLoading,
+    error,
   } = useHospitalById(id);
-
-  // Fetch reviews
-  const {
-    data: reviewsData,
-    isLoading: isLoadingReviews,
-  } = useHospitalReviews(id, reviewPage, 10, activeTab === '리뷰');
 
   const handleBookPress = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -53,27 +41,16 @@ export default function HospitalDetailScreen() {
     router.back();
   };
 
-  const handleTabPress = (tab: TabType) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setActiveTab(tab);
-  };
-
-  const handleLoadMoreReviews = () => {
-    if (reviewsData?.hasMore && !isLoadingReviews) {
-      setReviewPage((prev) => prev + 1);
-    }
-  };
-
-  if (isLoadingHospital) {
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#42A5F5" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>병원 정보 불러오는 중...</Text>
       </View>
     );
   }
 
-  if (hospitalError || !hospital) {
+  if (error || !hospital) {
     return (
       <View style={styles.errorContainer}>
         <Ionicons name="alert-circle" size={48} color="#ccc" />
@@ -87,14 +64,10 @@ export default function HospitalDetailScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.container}>
-        {/* Back Button (Floating) */}
+        {/* Back Button */}
         <TouchableOpacity
           style={styles.floatingBackButton}
           onPress={handleBack}
@@ -103,73 +76,29 @@ export default function HospitalDetailScreen() {
           <Ionicons name="chevron-back" size={24} color="#333" />
         </TouchableOpacity>
 
-        {/* Favorite Button (Floating) */}
-        <TouchableOpacity
-          style={styles.floatingFavoriteButton}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            // TODO: Implement favorite functionality
-          }}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="heart-outline" size={24} color="#333" />
-        </TouchableOpacity>
+        {/* Hospital Detail */}
+        <HospitalDetail hospital={hospital} onBookPress={handleBookPress} />
 
-        {/* Tabs */}
-        <View style={styles.tabsContainer}>
-          {TAB_OPTIONS.map((tab) => (
+        {/* Bottom Button */}
+        <View style={styles.bottomBarContainer}>
+          <SafeAreaView edges={['bottom']} style={styles.bottomSafeArea}>
             <TouchableOpacity
-              key={tab}
-              style={styles.tab}
-              onPress={() => handleTabPress(tab)}
-              activeOpacity={0.7}
+              style={styles.bookButtonWrapper}
+              onPress={handleBookPress}
+              activeOpacity={0.8}
             >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === tab && styles.tabTextActive,
-                ]}
+              <LinearGradient
+                colors={[colors.primary, '#FF8FAB']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.bookButton}
               >
-                {tab}
-              </Text>
-              {activeTab === tab && <View style={styles.tabIndicator} />}
+                <Ionicons name="calendar" size={22} color="#fff" />
+                <Text style={styles.bookButtonText}>예약하기</Text>
+              </LinearGradient>
             </TouchableOpacity>
-          ))}
+          </SafeAreaView>
         </View>
-
-        {/* Tab Content */}
-        <Animated.View
-          key={activeTab}
-          entering={FadeIn.duration(200)}
-          style={styles.tabContent}
-        >
-          {activeTab === '정보' ? (
-            <HospitalDetail
-              hospital={hospital}
-              onBookPress={handleBookPress}
-            />
-          ) : (
-            <HospitalReviews
-              reviews={reviewsData?.reviews || []}
-              total={reviewsData?.total || 0}
-              isLoading={isLoadingReviews}
-              hasMore={reviewsData?.hasMore}
-              onLoadMore={handleLoadMoreReviews}
-            />
-          )}
-        </Animated.View>
-
-        {/* Fixed Bottom Button */}
-        <SafeAreaView edges={['bottom']} style={styles.bottomContainer}>
-          <TouchableOpacity
-            style={styles.bookButton}
-            onPress={handleBookPress}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="calendar" size={20} color="#fff" />
-            <Text style={styles.bookButtonText}>예약하기</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
       </View>
     </>
   );
@@ -188,7 +117,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 15,
-    color: '#999',
+    color: colors.text.tertiary,
   },
   errorContainer: {
     flex: 1,
@@ -198,16 +127,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   errorText: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 15,
+    color: colors.text.secondary,
     textAlign: 'center',
   },
   backButton: {
     marginTop: 16,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    backgroundColor: '#42A5F5',
-    borderRadius: 8,
+    backgroundColor: colors.primary,
+    borderRadius: 12,
   },
   backButtonText: {
     fontSize: 15,
@@ -225,93 +154,50 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 100,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  floatingFavoriteButton: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 20,
-    right: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    paddingTop: Platform.OS === 'ios' ? 120 : 80,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-    position: 'relative',
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#999',
-  },
-  tabTextActive: {
-    fontWeight: '700',
-    color: '#333',
-  },
-  tabIndicator: {
+  bottomBarContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 3,
-    backgroundColor: '#42A5F5',
-  },
-  tabContent: {
-    flex: 1,
-  },
-  bottomContainer: {
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  bottomSafeArea: {
     paddingHorizontal: 20,
     paddingTop: 12,
+  },
+  bookButtonWrapper: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 6,
   },
   bookButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#42A5F5',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
+    paddingVertical: 18,
+    gap: 10,
   },
   bookButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
     color: '#fff',
+    letterSpacing: -0.3,
   },
 });

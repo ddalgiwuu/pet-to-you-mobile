@@ -10,6 +10,7 @@ export { HapticButton } from './HapticButton';
 export { DecorativeBlobs } from './DecorativeBlobs';
 export { PetCarouselCard } from './PetCarouselCard';
 export { FloatingTabBar } from './FloatingTabBar';
+export { PulsingDot } from './PulsingDot';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { Input } from './Input';
