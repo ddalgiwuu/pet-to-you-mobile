@@ -473,29 +473,27 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
           </TouchableOpacity>
         </View>
 
-        {/* Action Icons - 2 Only */}
-        <View style={styles.actionIconsContainer}>
+        {/* Compact Action Buttons */}
+        <View style={styles.compactActionsContainer}>
           <TouchableOpacity
-            style={styles.actionIcon}
+            style={styles.compactActionButton}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               Alert.alert('저장', '병원을 저장하시겠습니까?');
             }}
             activeOpacity={0.7}
           >
-            <Ionicons name="bookmark-outline" size={22} color={colors.text.secondary} />
-            <Text style={styles.actionIconLabel}>저장</Text>
+            <Ionicons name="bookmark-outline" size={18} color={colors.text.secondary} />
+            <Text style={styles.compactActionText}>저장</Text>
           </TouchableOpacity>
 
-          <View style={styles.actionDivider} />
-
           <TouchableOpacity
-            style={styles.actionIcon}
+            style={styles.compactActionButton}
             onPress={handleShare}
             activeOpacity={0.7}
           >
-            <Ionicons name="share-outline" size={22} color={colors.text.secondary} />
-            <Text style={styles.actionIconLabel}>공유</Text>
+            <Ionicons name="share-outline" size={18} color={colors.text.secondary} />
+            <Text style={styles.compactActionText}>공유</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -686,27 +684,27 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
-  actionIconsContainer: {
+  compactActionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingVertical: 8,
+    gap: 8,
+    paddingTop: 4,
   },
-  actionIcon: {
-    flex: 1,
+  compactActionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 20,
+    flex: 1,
+    justifyContent: 'center',
   },
-  actionIconLabel: {
-    fontSize: 12,
-    fontWeight: '500',
+  compactActionText: {
+    fontSize: 13,
+    fontWeight: '600',
     color: colors.text.secondary,
-    marginTop: 4,
-  },
-  actionDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: '#E5E5E5',
   },
   tabsContainer: {
     backgroundColor: '#fff',
