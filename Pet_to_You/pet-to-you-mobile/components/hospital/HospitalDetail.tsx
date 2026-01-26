@@ -483,7 +483,7 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
             }}
             activeOpacity={0.7}
           >
-            <Ionicons name="bookmark-outline" size={24} color={colors.text.secondary} />
+            <Ionicons name="bookmark-outline" size={22} color={colors.text.secondary} />
             <Text style={styles.actionIconLabel}>저장</Text>
           </TouchableOpacity>
 
@@ -494,18 +494,18 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
             onPress={handleShare}
             activeOpacity={0.7}
           >
-            <Ionicons name="share-outline" size={24} color={colors.text.secondary} />
+            <Ionicons name="share-outline" size={22} color={colors.text.secondary} />
             <Text style={styles.actionIconLabel}>공유</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Sticky Tabs - 4 Tabs */}
+      {/* Sticky Tabs - Horizontal Scroll */}
       <View style={styles.tabsContainer}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabsScrollContent}
+          contentContainerStyle={styles.tabsContent}
         >
           {TAB_ITEMS.map((tab) => (
             <TouchableOpacity
@@ -690,21 +690,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    paddingVertical: 8,
   },
   actionIcon: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 6,
   },
   actionIconLabel: {
     fontSize: 12,
     fontWeight: '500',
     color: colors.text.secondary,
-    marginTop: 6,
+    marginTop: 4,
   },
   actionDivider: {
     width: 1,
-    height: 36,
+    height: 28,
     backgroundColor: '#E5E5E5',
   },
   tabsContainer: {
@@ -712,13 +713,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
   },
-  tabsScrollContent: {
-    paddingHorizontal: 4,
+  tabsContent: {
+    paddingHorizontal: 20,
+    gap: 20,
+    flexGrow: 1,
+    justifyContent: 'space-around',
   },
   tabButton: {
-    paddingHorizontal: 24,
+    alignItems: 'center',
     paddingVertical: 14,
+    paddingHorizontal: 16,
     position: 'relative',
+    minWidth: 60,
   },
   tabText: {
     fontSize: 15,
@@ -732,8 +738,8 @@ const styles = StyleSheet.create({
   tabIndicator: {
     position: 'absolute',
     bottom: 0,
-    left: 24,
-    right: 24,
+    left: 16,
+    right: 16,
     height: 2,
     backgroundColor: colors.text.primary,
   },
