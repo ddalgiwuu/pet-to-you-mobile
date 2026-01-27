@@ -282,15 +282,33 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
         );
 
       case 'services':
+        const getServiceIcon = (service: string) => {
+          if (service.includes('예방')) return 'shield-checkmark';
+          if (service.includes('수술')) return 'medkit';
+          if (service.includes('치과')) return 'happy';
+          if (service.includes('피부')) return 'heart';
+          if (service.includes('안과')) return 'eye';
+          if (service.includes('내과')) return 'fitness';
+          return 'medical';
+        };
+
         return (
           <View style={styles.tabContent}>
             {hospital.services && hospital.services.length > 0 ? (
-              hospital.services.map((service, index) => (
-                <View key={index} style={styles.serviceRow}>
-                  <View style={styles.serviceBullet} />
-                  <Text style={styles.serviceText}>{service}</Text>
-                </View>
-              ))
+              <View style={styles.servicesGrid}>
+                {hospital.services.map((service, index) => (
+                  <View key={index} style={styles.serviceCard}>
+                    <View style={styles.serviceIconContainer}>
+                      <Ionicons
+                        name={getServiceIcon(service) as any}
+                        size={24}
+                        color={colors.primary}
+                      />
+                    </View>
+                    <Text style={styles.serviceCardText}>{service}</Text>
+                  </View>
+                ))}
+              </View>
             ) : (
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>진료과목 정보가 없습니다</Text>
@@ -300,45 +318,35 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
         );
 
       case 'facilities':
+        const facilities = [
+          { key: 'has24Hour', icon: 'time', label: '24시간 운영', color: '#667eea', desc: '24시간 진료 가능' },
+          { key: 'hasNightCare', icon: 'moon', label: '야간진료', color: '#764ba2', desc: '저녁 9시 이후 진료' },
+          { key: 'hasParking', icon: 'car', label: '주차 가능', color: colors.teal, desc: '병원 전용 주차장' },
+          { key: 'hasEmergency', icon: 'medical', label: '응급진료', color: colors.error, desc: '응급 상황 대응 가능' },
+        ];
+
+        const availableFacilities = facilities.filter(f => hospital[f.key as keyof Hospital]);
+
         return (
           <View style={styles.tabContent}>
-            <View style={styles.facilitiesGrid}>
-              {hospital.has24Hour && (
-                <View style={styles.facilityCard}>
-                  <View style={[styles.facilityIconBg, { backgroundColor: '#667eea15' }]}>
-                    <Ionicons name="time" size={28} color="#667eea" />
+            {availableFacilities.length > 0 ? (
+              <View style={styles.facilitiesListContainer}>
+                {availableFacilities.map((facility, index) => (
+                  <View key={index} style={styles.facilityRow}>
+                    <View style={[styles.facilityIconCircle, { backgroundColor: facility.color + '15' }]}>
+                      <Ionicons name={facility.icon as any} size={24} color={facility.color} />
+                    </View>
+                    <View style={styles.facilityInfo}>
+                      <Text style={styles.facilityTitle}>{facility.label}</Text>
+                      <Text style={styles.facilityDesc}>{facility.desc}</Text>
+                    </View>
+                    <Ionicons name="checkmark-circle" size={20} color={facility.color} />
                   </View>
-                  <Text style={styles.facilityLabel}>24시간</Text>
-                </View>
-              )}
-              {hospital.hasNightCare && (
-                <View style={styles.facilityCard}>
-                  <View style={[styles.facilityIconBg, { backgroundColor: '#764ba215' }]}>
-                    <Ionicons name="moon" size={28} color="#764ba2" />
-                  </View>
-                  <Text style={styles.facilityLabel}>야간진료</Text>
-                </View>
-              )}
-              {hospital.hasParking && (
-                <View style={styles.facilityCard}>
-                  <View style={[styles.facilityIconBg, { backgroundColor: colors.teal + '15' }]}>
-                    <Ionicons name="car" size={28} color={colors.teal} />
-                  </View>
-                  <Text style={styles.facilityLabel}>주차</Text>
-                </View>
-              )}
-              {hospital.hasEmergency && (
-                <View style={styles.facilityCard}>
-                  <View style={[styles.facilityIconBg, { backgroundColor: colors.error + '15' }]}>
-                    <Ionicons name="medical" size={28} color={colors.error} />
-                  </View>
-                  <Text style={styles.facilityLabel}>응급</Text>
-                </View>
-              )}
-            </View>
-
-            {!hospital.has24Hour && !hospital.hasNightCare && !hospital.hasParking && !hospital.hasEmergency && (
+                ))}
+              </View>
+            ) : (
               <View style={styles.emptyContainer}>
+                <Ionicons name="information-circle-outline" size={48} color={colors.text.tertiary} />
                 <Text style={styles.emptyText}>편의시설 정보가 없습니다</Text>
               </View>
             )}
@@ -349,9 +357,18 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
         return (
           <View style={styles.tabContent}>
             {hospital.description ? (
-              <Text style={styles.aboutText}>{hospital.description}</Text>
+              <View style={styles.aboutContainer}>
+                <View style={styles.aboutCard}>
+                  <View style={styles.aboutHeader}>
+                    <Ionicons name="document-text" size={20} color={colors.primary} />
+                    <Text style={styles.aboutHeaderText}>병원 소개</Text>
+                  </View>
+                  <Text style={styles.aboutText}>{hospital.description}</Text>
+                </View>
+              </View>
             ) : (
               <View style={styles.emptyContainer}>
+                <Ionicons name="document-text-outline" size={48} color={colors.text.tertiary} />
                 <Text style={styles.emptyText}>병원 소개가 없습니다</Text>
               </View>
             )}
@@ -838,51 +855,96 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text.secondary,
   },
-  serviceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  servicesGrid: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
     gap: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
   },
-  serviceBullet: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.primary,
-  },
-  serviceText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: colors.text.primary,
-  },
-  facilitiesGrid: {
+  serviceCard: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  facilityCard: {
     alignItems: 'center',
-    width: (width - 40 - 32) / 2,
-    paddingVertical: 20,
+    gap: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     backgroundColor: '#FAFAFA',
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
-  facilityIconBg: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  serviceIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  facilityLabel: {
-    fontSize: 14,
+  serviceCardText: {
+    flex: 1,
+    fontSize: 16,
     fontWeight: '600',
+    color: colors.text.primary,
+  },
+  facilitiesListContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    gap: 12,
+  },
+  facilityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: '#FAFAFA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  facilityIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  facilityInfo: {
+    flex: 1,
+  },
+  facilityTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginBottom: 2,
+  },
+  facilityDesc: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: colors.text.secondary,
+  },
+  aboutContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  aboutCard: {
+    backgroundColor: '#FAFAFA',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  aboutHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  aboutHeaderText: {
+    fontSize: 16,
+    fontWeight: '700',
     color: colors.text.primary,
   },
   aboutText: {
@@ -890,12 +952,11 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: colors.text.secondary,
     lineHeight: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
   },
   emptyContainer: {
-    paddingVertical: 60,
+    paddingVertical: 80,
     alignItems: 'center',
+    gap: 12,
   },
   emptyText: {
     fontSize: 14,
