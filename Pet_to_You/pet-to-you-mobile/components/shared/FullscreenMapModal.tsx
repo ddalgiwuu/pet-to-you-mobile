@@ -62,9 +62,23 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
     <script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/js/main/4.4.21/kakao.js"></script>
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}"></script>
     <style>
-        * { margin: 0; padding: 0; }
-        html, body { width: 100%; height: 100%; overflow: hidden; }
-        #map { width: 100%; height: 100%; }
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: pan-x pan-y pinch-zoom;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            touch-action: pan-x pan-y pinch-zoom;
+        }
     </style>
 </head>
 <body>
@@ -98,8 +112,10 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
                 const zoomControl = new kakao.maps.ZoomControl();
                 map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
-                // Add markers
+                // Add markers with InfoWindow
                 const markerData = ${markersJSON};
+                const infowindows = [];
+
                 markerData.forEach(function(data) {
                     const marker = new kakao.maps.Marker({
                         position: new kakao.maps.LatLng(data.lat, data.lng),
@@ -108,13 +124,37 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
                     marker.setMap(map);
                     markerArray.push(marker);
 
+                    // Create InfoWindow for each marker
+                    const infowindow = new kakao.maps.InfoWindow({
+                        content: '<div style="padding:10px 15px;font-size:14px;font-weight:600;color:#333;white-space:nowrap;">' + data.name + '</div>',
+                        removable: false
+                    });
+                    infowindows.push(infowindow);
+
+                    // Click event: show InfoWindow and notify React Native
                     kakao.maps.event.addListener(marker, 'click', function() {
+                        // Close all other InfoWindows
+                        infowindows.forEach(function(iw) {
+                            iw.close();
+                        });
+
+                        // Open clicked marker's InfoWindow
+                        infowindow.open(map, marker);
+
+                        // Notify React Native
                         if (window.ReactNativeWebView) {
                             window.ReactNativeWebView.postMessage(JSON.stringify({
                                 type: 'markerClick',
                                 marker: data
                             }));
                         }
+                    });
+
+                    // Click map to close all InfoWindows
+                    kakao.maps.event.addListener(map, 'click', function() {
+                        infowindows.forEach(function(iw) {
+                            iw.close();
+                        });
                     });
                 });
 
