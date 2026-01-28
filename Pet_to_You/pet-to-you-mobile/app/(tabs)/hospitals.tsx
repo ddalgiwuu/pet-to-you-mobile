@@ -287,73 +287,62 @@ export default function HospitalsScreen() {
         </View>
       )}
 
-      <Animated.ScrollView
-        style={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        stickyHeaderIndices={[1]}
-        bounces={true}
-        bouncesZoom={false}
-        decelerationRate="normal"
-      >
-        {/* Header - Collapsible */}
-        <View style={styles.header}>
-          <Text style={styles.title}>병원 찾기</Text>
-          {location && (
-            <View style={styles.locationDisplay}>
-              <Ionicons name="location" size={16} color={colors.primary} />
-              <Text style={styles.locationText}>{district}</Text>
-            </View>
-          )}
+      {/* Header - Fixed */}
+      <View style={styles.header}>
+        <Text style={styles.title}>병원 찾기</Text>
+        {location && (
+          <View style={styles.locationDisplay}>
+            <Ionicons name="location" size={16} color={colors.primary} />
+            <Text style={styles.locationText}>{district}</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Search & Filter Section - Fixed */}
+      <View style={styles.searchSection}>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="병원 이름 검색"
+          style={styles.searchBar}
+        />
+
+        {/* Filter & Sort Row */}
+        <View style={styles.filterSortRow}>
+          <TouchableOpacity
+            style={styles.filterChip}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              filterSheetRef.current?.expand();
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="options-outline" size={18} color={colors.text.secondary} />
+            <Text style={styles.filterChipText}>필터</Text>
+            {activeFilterCount > 0 && (
+              <View style={styles.filterBadge}>
+                <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.filterChip}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowSortSheet(!showSortSheet);
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="swap-vertical-outline" size={18} color={colors.text.secondary} />
+            <Text style={styles.filterChipText}>
+              {SORT_OPTIONS.find(o => o.id === sortBy)?.label || '정렬'}
+            </Text>
+            <Ionicons name="chevron-down" size={14} color={colors.text.tertiary} />
+          </TouchableOpacity>
         </View>
 
-        {/* Search Bar - Sticky */}
-        <View style={styles.searchSection}>
-          <SearchBar
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="병원 이름 검색"
-            style={styles.searchBar}
-          />
-
-          {/* Filter & Sort Row - Redesigned */}
-          <View style={styles.filterSortRow}>
-            {/* Filter Chip */}
-            <TouchableOpacity
-              style={styles.filterChip}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                filterSheetRef.current?.expand();
-              }}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="options-outline" size={18} color={colors.text.secondary} />
-              <Text style={styles.filterChipText}>필터</Text>
-              {activeFilterCount > 0 && (
-                <View style={styles.filterBadge}>
-                  <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-
-            {/* Sort Chip */}
-            <TouchableOpacity
-              style={styles.filterChip}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setShowSortSheet(!showSortSheet);
-              }}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="swap-vertical-outline" size={18} color={colors.text.secondary} />
-              <Text style={styles.filterChipText}>
-                {SORT_OPTIONS.find(o => o.id === sortBy)?.label || '정렬'}
-              </Text>
-              <Ionicons name="chevron-down" size={14} color={colors.text.tertiary} />
-            </TouchableOpacity>
-          </View>
-
-        {/* Sort Options */}
+        {/* Sort Sheet */}
         {showSortSheet && (
           <Animated.View
             entering={FadeIn.duration(200)}
@@ -374,7 +363,7 @@ export default function HospitalsScreen() {
                 <Ionicons
                   name={option.icon}
                   size={18}
-                  color={sortBy === option.id ? '#42A5F5' : '#666'}
+                  color={sortBy === option.id ? colors.primary : '#666'}
                 />
                 <Text
                   style={[
@@ -385,17 +374,16 @@ export default function HospitalsScreen() {
                   {option.label}
                 </Text>
                 {sortBy === option.id && (
-                  <Ionicons name="checkmark" size={18} color="#42A5F5" />
+                  <Ionicons name="checkmark" size={18} color={colors.primary} />
                 )}
               </TouchableOpacity>
             ))}
           </Animated.View>
         )}
-        </View>
+      </View>
 
-        {/* Content */}
-        {renderContent()}
-      </Animated.ScrollView>
+      {/* Content */}
+      {renderContent()}
 
       {/* Filter Bottom Sheet */}
       <FilterSheet
