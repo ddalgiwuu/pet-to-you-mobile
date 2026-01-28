@@ -295,7 +295,7 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
               html: generateMapHTML(),
               baseUrl: 'https://localhost'
             }}
-            userAgent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1"
             style={styles.webView}
             onMessage={handleWebViewMessage}
             javaScriptEnabled={true}
@@ -304,12 +304,30 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
             allowUniversalAccessFromFileURLs={true}
             allowFileAccess={true}
             mixedContentMode="always"
-            scrollEnabled={true}
+            scrollEnabled={false}
             bounces={false}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
             scalesPageToFit={false}
             contentMode="mobile"
+            nestedScrollEnabled={true}
+            directionalLockEnabled={false}
+            automaticallyAdjustContentInsets={false}
+            injectedJavaScript={`
+              document.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+              }, { passive: false, capture: false });
+
+              document.addEventListener('touchmove', function(e) {
+                e.stopPropagation();
+              }, { passive: false, capture: false });
+
+              document.addEventListener('touchend', function(e) {
+                e.stopPropagation();
+              }, { passive: false, capture: false });
+
+              true;
+            `}
           />
 
           {/* Floating Back Button */}
