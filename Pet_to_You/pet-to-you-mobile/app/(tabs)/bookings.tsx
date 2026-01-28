@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -17,6 +18,7 @@ const STATUS_MAP: Record<TabType, 'upcoming' | 'completed' | 'cancelled'> = {
 };
 
 export default function BookingsScreen() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('예정');
   const status = STATUS_MAP[activeTab];
   const { data: bookings = [], isLoading, refetch } = useBookings(status);
@@ -37,8 +39,7 @@ export default function BookingsScreen() {
 
   const handleEdit = (bookingId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // TODO: Navigate to edit booking screen
-    Alert.alert('예약 수정', '예약 수정 화면으로 이동합니다.');
+    router.push(`/booking/edit/${bookingId}` as any);
   };
 
   const renderBooking = (booking: any) => {
