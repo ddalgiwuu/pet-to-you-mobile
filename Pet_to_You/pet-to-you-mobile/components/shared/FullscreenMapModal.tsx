@@ -57,7 +57,7 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
     <title>Kakao Map</title>
     <script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/js/main/4.4.21/kakao.js"></script>
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}"></script>
@@ -80,11 +80,19 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
                 const container = document.getElementById('map');
                 const options = {
                     center: new kakao.maps.LatLng(${latitude}, ${longitude}),
-                    level: 3
+                    level: 3,
+                    draggable: true,
+                    scrollwheel: true,
+                    disableDoubleClick: false,
+                    disableDoubleClickZoom: false
                 };
 
                 const map = new kakao.maps.Map(container, options);
                 const markerArray = [];
+
+                // Enable all interactions
+                map.setDraggable(true);
+                map.setZoomable(true);
 
                 // Add zoom control
                 const zoomControl = new kakao.maps.ZoomControl();
@@ -256,6 +264,12 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
             allowUniversalAccessFromFileURLs={true}
             allowFileAccess={true}
             mixedContentMode="always"
+            scrollEnabled={true}
+            bounces={false}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            scalesPageToFit={false}
+            contentMode="mobile"
           />
 
           {/* Floating Back Button */}
