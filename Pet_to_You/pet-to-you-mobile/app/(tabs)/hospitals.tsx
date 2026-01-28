@@ -291,10 +291,32 @@ export default function HospitalsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>병원 찾기</Text>
         {location && (
-          <View style={styles.locationDisplay}>
+          <TouchableOpacity
+            style={styles.locationDisplay}
+            onPress={async () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              const lat = location.latitude;
+              const lng = location.longitude;
+              const kakaoMapUrl = `kakaomap://look?p=${lat},${lng}`;
+              const kakaoWebUrl = `https://map.kakao.com/?q=동물병원&lat=${lat}&lng=${lng}`;
+
+              try {
+                const supported = await Linking.canOpenURL(kakaoMapUrl);
+                if (supported) {
+                  await Linking.openURL(kakaoMapUrl);
+                } else {
+                  await Linking.openURL(kakaoWebUrl);
+                }
+              } catch (error) {
+                Alert.alert('오류', '지도를 열 수 없습니다.');
+              }
+            }}
+            activeOpacity={0.7}
+          >
             <Ionicons name="location" size={16} color={colors.primary} />
             <Text style={styles.locationText}>{district}</Text>
-          </View>
+            <Ionicons name="chevron-forward" size={14} color={colors.text.tertiary} />
+          </TouchableOpacity>
         )}
       </View>
 
@@ -448,9 +470,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 16,
+    alignSelf: 'flex-start',
   },
   locationText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: colors.text.secondary,
   },
