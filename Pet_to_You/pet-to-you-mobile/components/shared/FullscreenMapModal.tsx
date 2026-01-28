@@ -108,9 +108,7 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
                 map.setDraggable(true);
                 map.setZoomable(true);
 
-                // Add zoom control
-                const zoomControl = new kakao.maps.ZoomControl();
-                map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+                // No zoom control (use pinch-to-zoom instead)
 
                 // Add markers with InfoWindow
                 const markerData = ${markersJSON};
@@ -314,17 +312,21 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
             directionalLockEnabled={false}
             automaticallyAdjustContentInsets={false}
             injectedJavaScript={`
-              document.addEventListener('touchstart', function(e) {
-                e.stopPropagation();
-              }, { passive: false, capture: false });
+              // Enable all touch gestures for Kakao Map
+              const style = document.createElement('style');
+              style.textContent = \`
+                * {
+                  touch-action: manipulation !important;
+                  -webkit-user-select: none;
+                }
+                #map {
+                  touch-action: pan-x pan-y pinch-zoom !important;
+                }
+              \`;
+              document.head.appendChild(style);
 
-              document.addEventListener('touchmove', function(e) {
-                e.stopPropagation();
-              }, { passive: false, capture: false });
-
-              document.addEventListener('touchend', function(e) {
-                e.stopPropagation();
-              }, { passive: false, capture: false });
+              // Let all touch events reach the map
+              document.body.style.touchAction = 'pan-x pan-y pinch-zoom';
 
               true;
             `}
