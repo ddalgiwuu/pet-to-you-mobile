@@ -293,7 +293,6 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
               html: generateMapHTML(),
               baseUrl: 'https://localhost'
             }}
-            userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1"
             style={styles.webView}
             onMessage={handleWebViewMessage}
             javaScriptEnabled={true}
@@ -306,28 +305,9 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({
             bounces={false}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
-            scalesPageToFit={false}
-            contentMode="mobile"
-            nestedScrollEnabled={true}
-            directionalLockEnabled={false}
             automaticallyAdjustContentInsets={false}
             injectedJavaScript={`
-              // Enable all touch gestures for Kakao Map
-              const style = document.createElement('style');
-              style.textContent = \`
-                * {
-                  touch-action: manipulation !important;
-                  -webkit-user-select: none;
-                }
-                #map {
-                  touch-action: pan-x pan-y pinch-zoom !important;
-                }
-              \`;
-              document.head.appendChild(style);
-
-              // Let all touch events reach the map
-              document.body.style.touchAction = 'pan-x pan-y pinch-zoom';
-
+              window.isNativeApp = true;
               true;
             `}
           />

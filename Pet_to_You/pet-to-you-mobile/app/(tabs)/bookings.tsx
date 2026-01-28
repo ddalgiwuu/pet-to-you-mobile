@@ -35,6 +35,12 @@ export default function BookingsScreen() {
     ]);
   };
 
+  const handleEdit = (bookingId: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // TODO: Navigate to edit booking screen
+    Alert.alert('예약 수정', '예약 수정 화면으로 이동합니다.');
+  };
+
   const renderBooking = (booking: any) => {
     const bookingDate = format(new Date(`${booking.date}T${booking.time}`), 'yyyy.MM.dd (EEE) HH:mm', { locale: ko });
     
@@ -62,8 +68,11 @@ export default function BookingsScreen() {
 
         {activeTab === '예정' && (
           <View style={styles.bookingActions}>
+            <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(booking.id)}>
+              <Text style={styles.editButtonText}>수정</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel(booking.id)}>
-              <Text style={styles.cancelButtonText}>취소하기</Text>
+              <Text style={styles.cancelButtonText}>취소</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -128,8 +137,10 @@ const styles = StyleSheet.create({
   statusText: { fontSize: 12, fontWeight: '600', color: '#333' },
   bookingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   bookingInfoText: { fontSize: 15, color: '#666' },
-  bookingActions: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
-  cancelButton: { paddingVertical: 12, alignItems: 'center', backgroundColor: '#f5f5f5', borderRadius: 8 },
+  bookingActions: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0', flexDirection: 'row', gap: 8 },
+  editButton: { flex: 1, paddingVertical: 12, alignItems: 'center', backgroundColor: '#FF6B9D', borderRadius: 8 },
+  editButtonText: { fontSize: 15, fontWeight: '600', color: '#fff' },
+  cancelButton: { flex: 1, paddingVertical: 12, alignItems: 'center', backgroundColor: '#f5f5f5', borderRadius: 8 },
   cancelButtonText: { fontSize: 15, fontWeight: '600', color: '#FF5252' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
