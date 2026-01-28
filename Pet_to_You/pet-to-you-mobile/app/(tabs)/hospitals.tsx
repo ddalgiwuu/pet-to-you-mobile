@@ -24,24 +24,17 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
 import {
-  ListMapToggle,
   SearchBar,
   FilterSheet,
   FilterSheetRef,
-  KakaoMapView,
-  ViewMode,
-  MapMarker,
   FilterGroup,
-  LocationChip,
-  FullscreenMapModal,
 } from '@/components/shared';
 import { HospitalListItem } from '@/components/hospital';
 import { useHospitals } from '@/hooks/useHospitals';
 import { useLocation } from '@/hooks/useLocation';
-import { useKakaoMap } from '@/hooks/useKakaoMap';
 import { useFilterStore, selectHospitalFilters, selectSearchQuery, selectSortBy } from '@/store/filterStore';
-import config from '@/constants/config';
 import { getShortDistrict } from '@/services/geocoding';
+import { colors } from '@/constants/theme';
 
 const SORT_OPTIONS = [
   { id: 'distance', label: '거리순', icon: 'location' as const },
@@ -54,22 +47,12 @@ export default function HospitalsScreen() {
   const router = useRouter();
 
   // State
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [showSortSheet, setShowSortSheet] = useState(false);
-  const [mapModalVisible, setMapModalVisible] = useState(false);
   const [district, setDistrict] = useState<string>('위치 확인 중...');
   const filterSheetRef = useRef<FilterSheetRef>(null);
 
   // Hooks
   const { location, isLoading: isLoadingLocation, refreshLocation } = useLocation();
-  const {
-    markers: mapMarkers,
-    center,
-    setCenter,
-    addMarkers,
-    clearMarkers,
-    setMapReady,
-  } = useKakaoMap();
 
   // Store
   const hospitalFilters = useFilterStore(selectHospitalFilters);
@@ -95,35 +78,6 @@ export default function HospitalsScreen() {
     enabled: !!location,
   });
 
-  // Convert hospitals to map markers
-  useEffect(() => {
-    if (hospitals.length > 0) {
-      console.log(`Converting ${hospitals.length} hospitals to map markers`);
-      const markers: MapMarker[] = hospitals.map((hospital) => ({
-        id: hospital.id,
-        lat: hospital.latitude,
-        lng: hospital.longitude,
-        title: hospital.name,
-        type: 'hospital',
-        extra: hospital,
-      }));
-
-      console.log('Sample marker:', markers[0]);
-      clearMarkers();
-      addMarkers(markers);
-    }
-  }, [hospitals]);
-
-  // Set initial map center when location is available
-  useEffect(() => {
-    if (location && !center) {
-      setCenter({
-        lat: location.latitude,
-        lng: location.longitude,
-        level: 3,
-      });
-    }
-  }, [location, center, setCenter]);
 
   // Get district name from GPS coordinates
   useEffect(() => {
@@ -241,13 +195,6 @@ export default function HospitalsScreen() {
     [filterGroups, hospitalFilters, setHospitalFilters]
   );
 
-  // Handle marker press in map
-  const handleMarkerPress = useCallback((marker: MapMarker) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log('Marker pressed:', marker.id, marker.title);
-    // Navigate to hospital detail
-    router.push(`/hospital/${marker.id}`);
-  }, [router]);
 
   // Get active filter count
   const activeFilterCount = useMemo(() => {
@@ -261,67 +208,8 @@ export default function HospitalsScreen() {
     return count;
   }, [hospitalFilters]);
 
-  // Open Kakao Maps app with hospital markers
-  const handleFullscreenMap = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    const lat = location?.latitude || 37.5665;
-    const lng = location?.longitude || 126.9780;
-
-    // Kakao Maps app URL scheme
-    const kakaoMapUrl = `kakaomap://look?p=${lat},${lng}`;
-    const kakaoWebUrl = `https://map.kakao.com/?q=동물병원&lat=${lat}&lng=${lng}`;
-
-    Alert.alert(
-      '지도 보기',
-      '카카오맵에서 주변 병원을 확인하시겠습니까?',
-      [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '카카오맵 열기',
-          onPress: async () => {
-            const supported = await Linking.canOpenURL(kakaoMapUrl);
-            if (supported) {
-              await Linking.openURL(kakaoMapUrl);
-            } else {
-              // Fallback to web version
-              await Linking.openURL(kakaoWebUrl);
-            }
-          },
-        },
-      ]
-    );
-  }, [location]);
-
-  // Render content based on view mode
+  // Render hospital list
   const renderContent = () => {
-    if (viewMode === 'map') {
-      return (
-        <Animated.View
-          style={styles.mapContainer}
-          entering={FadeIn}
-          exiting={FadeOut}
-        >
-          <KakaoMapView
-            markers={mapMarkers}
-            center={center}
-            onMarkerPress={handleMarkerPress}
-            onMapReady={() => setMapReady(true)}
-            kakaoAppKey={config.kakaoMapsAppKey}
-            style={styles.map}
-          />
-          {/* Fullscreen Map Button */}
-          <TouchableOpacity
-            style={styles.fullscreenButton}
-            onPress={handleFullscreenMap}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="expand" size={20} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
-      );
-    }
-
     if (isLoading || isLoadingLocation) {
       return (
         <View style={styles.loadingContainer}>
@@ -428,41 +316,42 @@ export default function HospitalsScreen() {
             style={styles.searchBar}
           />
 
-          {/* Controls Row */}
-          <View style={styles.controlsRow}>
-          <ListMapToggle mode={viewMode} onModeChange={setViewMode} />
-
-          <View style={styles.rightControls}>
-            {/* Filter Button */}
+          {/* Filter & Sort Row - Redesigned */}
+          <View style={styles.filterSortRow}>
+            {/* Filter Chip */}
             <TouchableOpacity
-              style={styles.iconButton}
+              style={styles.filterChip}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 filterSheetRef.current?.expand();
               }}
               activeOpacity={0.7}
             >
-              <Ionicons name="options" size={20} color="#333" />
+              <Ionicons name="options-outline" size={18} color={colors.text.secondary} />
+              <Text style={styles.filterChipText}>필터</Text>
               {activeFilterCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{activeFilterCount}</Text>
+                <View style={styles.filterBadge}>
+                  <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
                 </View>
               )}
             </TouchableOpacity>
 
-            {/* Sort Button */}
+            {/* Sort Chip */}
             <TouchableOpacity
-              style={styles.iconButton}
+              style={styles.filterChip}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setShowSortSheet(!showSortSheet);
               }}
               activeOpacity={0.7}
             >
-              <Ionicons name="swap-vertical" size={20} color="#333" />
+              <Ionicons name="swap-vertical-outline" size={18} color={colors.text.secondary} />
+              <Text style={styles.filterChipText}>
+                {SORT_OPTIONS.find(o => o.id === sortBy)?.label || '정렬'}
+              </Text>
+              <Ionicons name="chevron-down" size={14} color={colors.text.tertiary} />
             </TouchableOpacity>
           </View>
-        </View>
 
         {/* Sort Options */}
         {showSortSheet && (
@@ -516,22 +405,6 @@ export default function HospitalsScreen() {
         onReset={resetHospitalFilters}
         onApply={() => filterSheetRef.current?.close()}
       />
-
-      {/* Fullscreen Map Modal */}
-      {location && (
-        <FullscreenMapModal
-          visible={mapModalVisible}
-          onClose={() => setMapModalVisible(false)}
-          latitude={location.latitude}
-          longitude={location.longitude}
-          markers={hospitals.map(h => ({
-            id: h.id,
-            name: h.name,
-            lat: h.latitude,
-            lng: h.longitude,
-          }))}
-        />
-      )}
     </SafeAreaView>
   );
 }
@@ -604,36 +477,36 @@ const styles = StyleSheet.create({
   searchBar: {
     marginBottom: 12,
   },
-  controlsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  rightControls: {
+  filterSortRow: {
     flexDirection: 'row',
     gap: 8,
   },
-  iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
+  filterChip: {
+    flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#FF5252',
+  filterChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text.secondary,
+  },
+  filterBadge: {
+    backgroundColor: colors.primary,
     width: 18,
     height: 18,
     borderRadius: 9,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 2,
   },
-  badgeText: {
+  filterBadgeText: {
     fontSize: 10,
     fontWeight: '700',
     color: '#fff',
@@ -681,12 +554,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 20,
-  },
-  mapContainer: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -738,27 +605,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
     textAlign: 'center',
-  },
-  fullscreenButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#42A5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
   },
 });
