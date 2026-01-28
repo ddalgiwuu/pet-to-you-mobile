@@ -28,6 +28,7 @@ import {
   FilterSheet,
   FilterSheetRef,
   FilterGroup,
+  FullscreenMapModal,
 } from '@/components/shared';
 import { HospitalListItem } from '@/components/hospital';
 import { useHospitals } from '@/hooks/useHospitals';
@@ -48,6 +49,7 @@ export default function HospitalsScreen() {
 
   // State
   const [showSortSheet, setShowSortSheet] = useState(false);
+  const [mapModalVisible, setMapModalVisible] = useState(false);
   const [district, setDistrict] = useState<string>('위치 확인 중...');
   const filterSheetRef = useRef<FilterSheetRef>(null);
 
@@ -293,23 +295,9 @@ export default function HospitalsScreen() {
         {location && (
           <TouchableOpacity
             style={styles.locationDisplay}
-            onPress={async () => {
+            onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              const lat = location.latitude;
-              const lng = location.longitude;
-              const kakaoMapUrl = `kakaomap://look?p=${lat},${lng}`;
-              const kakaoWebUrl = `https://map.kakao.com/?q=동물병원&lat=${lat}&lng=${lng}`;
-
-              try {
-                const supported = await Linking.canOpenURL(kakaoMapUrl);
-                if (supported) {
-                  await Linking.openURL(kakaoMapUrl);
-                } else {
-                  await Linking.openURL(kakaoWebUrl);
-                }
-              } catch (error) {
-                Alert.alert('오류', '지도를 열 수 없습니다.');
-              }
+              setMapModalVisible(true);
             }}
             activeOpacity={0.7}
           >
@@ -415,6 +403,22 @@ export default function HospitalsScreen() {
         onReset={resetHospitalFilters}
         onApply={() => filterSheetRef.current?.close()}
       />
+
+      {/* Fullscreen Map Modal */}
+      {location && (
+        <FullscreenMapModal
+          visible={mapModalVisible}
+          onClose={() => setMapModalVisible(false)}
+          latitude={location.latitude}
+          longitude={location.longitude}
+          markers={hospitals.map(h => ({
+            id: h.id,
+            name: h.name,
+            lat: h.latitude,
+            lng: h.longitude,
+          }))}
+        />
+      )}
     </SafeAreaView>
   );
 }
