@@ -48,6 +48,7 @@ export default function BookingScreen() {
   const [selectedServiceType, setSelectedServiceType] = useState<string>();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>();
+  const [selectedVetId, setSelectedVetId] = useState<string>();
   const [symptoms, setSymptoms] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -114,6 +115,7 @@ export default function BookingScreen() {
       date: selectedDate.toISOString().split('T')[0],
       time: selectedTime,
       serviceType: selectedServiceType,
+      veterinarianId: selectedVetId,
       symptoms,
       notes,
     };
@@ -184,8 +186,10 @@ export default function BookingScreen() {
               hospitalId={hospitalId}
               selectedDate={selectedDate}
               selectedTime={selectedTime}
+              selectedVetId={selectedVetId}
               onSelectDate={setSelectedDate}
               onSelectTime={setSelectedTime}
+              onSelectVet={setSelectedVetId}
             />
           </Animated.View>
         );

@@ -153,7 +153,7 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
               <Ionicons
                 name={addressExpanded ? 'chevron-up' : 'chevron-down'}
                 size={20}
-                color={colors.text.tertiary}
+                color={colors.text?.tertiary || '#9CA3AF'}
               />
             </TouchableOpacity>
 
@@ -193,7 +193,7 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
                   <Ionicons
                     name={hoursExpanded ? 'chevron-up' : 'chevron-down'}
                     size={20}
-                    color={colors.text.tertiary}
+                    color={colors.text?.tertiary || '#9CA3AF'}
                   />
                 </TouchableOpacity>
 
@@ -276,7 +276,7 @@ export const HospitalDetail: React.FC<HospitalDetailProps> = ({
               activeOpacity={0.7}
             >
               <Text style={styles.moreInfoText}>정보 더보기</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
+              <Ionicons name="chevron-forward" size={18} color={colors.text?.tertiary || '#9CA3AF'} />
             </TouchableOpacity>
           </View>
         );
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   },
   ratingDivider: {
     fontSize: 14,
-    color: colors.text.tertiary,
+    color: '#9CA3AF',
     marginHorizontal: 4,
   },
   reviewText: {
@@ -744,7 +744,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.text.tertiary,
+    color: '#9CA3AF',
   },
   tabTextActive: {
     color: colors.text.primary,
@@ -961,7 +961,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.text.tertiary,
+    color: '#9CA3AF',
   },
 });
 

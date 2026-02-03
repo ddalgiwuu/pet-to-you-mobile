@@ -64,6 +64,13 @@ export default function ProfileScreen() {
       color: '#95E1D3',
     },
     {
+      id: '4.5',
+      title: '반려동물 보험',
+      icon: 'shield-checkmark-outline',
+      route: '/insurance/list',
+      color: '#95E1D3',
+    },
+    {
       id: '5',
       title: '설정',
       icon: 'settings-outline',
@@ -203,7 +210,7 @@ export default function ProfileScreen() {
           </ScrollView>
         ) : (
           <View style={styles.emptyPets}>
-            <Ionicons name="paw-outline" size={32} color={colors.text.tertiary} />
+            <Ionicons name="paw-outline" size={32} color={colors.text?.tertiary || '#9CA3AF'} />
             <Text style={styles.emptyText}>등록된 반려동물이 없습니다</Text>
             <Pressable onPress={handleAddPet}>
               <Text style={styles.emptyAction}>펫 등록하기</Text>
@@ -231,7 +238,7 @@ export default function ProfileScreen() {
                 </View>
                 <Text style={styles.menuText}>{item.title}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
+              <Ionicons name="chevron-forward" size={20} color={colors.text?.tertiary || '#9CA3AF'} />
             </Pressable>
           ))}
         </View>
@@ -263,7 +270,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...typography.body1,
-    color: colors.text.secondary,
+    color: '#6B7684',
     textAlign: 'center',
   },
   headerGradient: {
@@ -348,7 +355,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.heading3,
     fontSize: 18,
-    color: colors.text.primary,
+    color: '#191F28',
   },
   addButton: {
     flexDirection: 'row',
@@ -392,7 +399,7 @@ const styles = StyleSheet.create({
   petName: {
     ...typography.body2,
     fontWeight: '600',
-    color: colors.text.primary,
+    color: '#191F28',
     marginBottom: 2,
     textAlign: 'center',
     width: '100%',
@@ -400,7 +407,7 @@ const styles = StyleSheet.create({
   petBreed: {
     ...typography.caption,
     fontSize: 11,
-    color: colors.text.secondary,
+    color: '#6B7684',
     textAlign: 'center',
     width: '100%',
   },
@@ -413,7 +420,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     ...typography.body2,
-    color: colors.text.secondary,
+    color: '#6B7684',
   },
   emptyAction: {
     ...typography.body2,
@@ -453,7 +460,7 @@ const styles = StyleSheet.create({
   menuText: {
     ...typography.body1,
     fontWeight: '500',
-    color: colors.text.primary,
+    color: '#191F28',
   },
   logoutButton: {
     flexDirection: 'row',
@@ -478,7 +485,7 @@ const styles = StyleSheet.create({
   },
   versionText: {
     ...typography.caption,
-    color: colors.text.tertiary,
+    color: '#9CA3AF',
   },
   bottomSpacing: {
     height: spacing.xl,

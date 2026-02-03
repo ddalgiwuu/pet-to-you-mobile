@@ -12,12 +12,14 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { CreatePetData } from '@/hooks/usePets';
+import { BreedSelector } from './BreedSelector';
 
 interface BasicInfoFormProps {
   data: Partial<CreatePetData>;
   onDataChange: (data: Partial<CreatePetData>) => void;
 }
 
+// Hoist static options outside component (Vercel: rendering-hoist-jsx)
 const SPECIES_OPTIONS = [
   { id: 'dog', label: '강아지', icon: '🐶' },
   { id: 'cat', label: '고양이', icon: '🐱' },
@@ -33,9 +35,36 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   data,
   onDataChange,
 }) => {
-  const handleChange = (field: keyof CreatePetData, value: any) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onDataChange({ ...data, [field]: value });
+  // Use functional setState for stable callbacks (Vercel: rerender-functional-setstate)
+  const handleChange = React.useCallback(
+    (field: keyof CreatePetData, value: any) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onDataChange((prevData) => ({ ...prevData, [field]: value }));
+    },
+    [onDataChange]
+  );
+
+  // Auto-format birth date: 20200310 → 2020-03-10
+  const formatBirthDate = (value: string): string => {
+    // Remove all non-numeric characters
+    const numbers = value.replace(/\D/g, '');
+
+    // Limit to 8 digits (YYYYMMDD)
+    const limited = numbers.slice(0, 8);
+
+    // Format based on length
+    if (limited.length <= 4) {
+      return limited; // YYYY
+    } else if (limited.length <= 6) {
+      return `${limited.slice(0, 4)}-${limited.slice(4)}`; // YYYY-MM
+    } else {
+      return `${limited.slice(0, 4)}-${limited.slice(4, 6)}-${limited.slice(6)}`; // YYYY-MM-DD
+    }
+  };
+
+  const handleBirthDateChange = (value: string) => {
+    const formatted = formatBirthDate(value);
+    handleChange('birthDate', formatted);
   };
 
   return (
@@ -95,16 +124,22 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         </View>
       </View>
 
-      {/* Breed Input */}
+      {/* Breed Selection */}
       <View style={styles.field}>
         <Text style={styles.label}>품종</Text>
-        <TextInput
-          value={data.breed || ''}
-          onChangeText={(value) => handleChange('breed', value)}
-          placeholder="품종을 입력하세요 (예: 말티즈, 페르시안)"
-          placeholderTextColor="#999"
-          style={styles.input}
-        />
+        {data.species ? (
+          <BreedSelector
+            species={data.species as 'dog' | 'cat' | 'other'}
+            selectedBreed={data.breed}
+            onSelectBreed={(breed) => handleChange('breed', breed)}
+          />
+        ) : (
+          <View style={styles.disabledInput}>
+            <Text style={styles.disabledInputText}>
+              먼저 종류를 선택해주세요
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Birth Date Input */}
@@ -112,13 +147,16 @@ export const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         <Text style={styles.label}>생년월일</Text>
         <TextInput
           value={data.birthDate || ''}
-          onChangeText={(value) => handleChange('birthDate', value)}
-          placeholder="YYYY-MM-DD (예: 2020-03-15)"
+          onChangeText={handleBirthDateChange}
+          placeholder="20200315 또는 2020-03-15"
           placeholderTextColor="#999"
           style={styles.input}
           keyboardType="numeric"
+          maxLength={10}
         />
-        <Text style={styles.hint}>정확한 생일을 모르면 예상 생일을 입력하세요</Text>
+        <Text style={styles.hint}>
+          8자리 숫자로 입력하면 자동으로 변환됩니다 (예: 20200315 → 2020-03-15)
+        </Text>
       </View>
 
       {/* Gender Selection */}
@@ -301,6 +339,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#666',
+  },
+  disabledInput: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  disabledInputText: {
+    fontSize: 16,
+    color: '#999',
   },
 });
 

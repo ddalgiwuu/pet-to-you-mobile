@@ -60,15 +60,53 @@ export const api = {
     openNow?: boolean;
     rating?: number;
     sortBy?: 'distance' | 'rating' | 'name';
-  }) => apiClient.get('/hospitals', { params }),
+  }) => {
+    // Map frontend params to backend API format
+    const backendParams: any = {
+      latitude: params?.lat,
+      longitude: params?.lng,
+      radiusKm: params?.radius ? params.radius / 1000 : 10, // Convert meters to km
+      keyword: params?.search,
+      openNow: params?.openNow,
+      minRating: params?.rating,
+      sortBy: params?.sortBy || 'distance',
+      page: 1,
+      limit: 50,
+    };
+
+    return apiClient.get('/hospitals/search', { params: backendParams });
+  },
 
   getHospitalById: (id: string) => apiClient.get(`/hospitals/${id}`),
 
   getHospitalReviews: (id: string, page: number = 1, limit: number = 10) =>
     apiClient.get(`/hospitals/${id}/reviews`, { params: { page, limit } }),
 
-  getAvailableSlots: (hospitalId: string, date: string) =>
-    apiClient.get(`/hospitals/${hospitalId}/slots`, { params: { date } }),
+  getAvailableSlots: (hospitalId: string, date: string, veterinarianId?: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/slots`, {
+      params: { date, veterinarianId },
+    }),
+
+  // Veterinarians
+  getVeterinarians: (hospitalId: string, activeOnly?: boolean) =>
+    apiClient.get(`/hospitals/${hospitalId}/staff`, {
+      params: { active: activeOnly },
+    }),
+
+  getVeterinarianById: (hospitalId: string, vetId: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/staff/${vetId}`),
+
+  createVeterinarian: (hospitalId: string, data: any) =>
+    apiClient.post(`/hospitals/${hospitalId}/staff`, data),
+
+  updateVeterinarian: (hospitalId: string, vetId: string, data: any) =>
+    apiClient.put(`/hospitals/${hospitalId}/staff/${vetId}`, data),
+
+  deleteVeterinarian: (hospitalId: string, vetId: string) =>
+    apiClient.delete(`/hospitals/${hospitalId}/staff/${vetId}`),
+
+  toggleVeterinarianStatus: (hospitalId: string, vetId: string, isActive: boolean) =>
+    apiClient.patch(`/hospitals/${hospitalId}/staff/${vetId}/toggle`, { isActive }),
 
   // Adoption
   getAdoptions: (params?: {
@@ -180,6 +218,125 @@ export const api = {
 
   unfollowUser: (userId: string) =>
     apiClient.delete(`/users/${userId}/follow`),
+
+  // Medical Records
+  getMedicalRecords: (petId: string) =>
+    apiClient.get('/medical-records', { params: { petId } }).then(res => res.data?.data || res.data || []),
+
+  getMedicalRecordById: (id: string) =>
+    apiClient.get(`/medical-records/${id}`).then(res => res.data?.data || res.data),
+
+  createMedicalRecord: (data: any) =>
+    apiClient.post('/medical-records', data).then(res => res.data?.data || res.data),
+
+  updateMedicalRecord: (id: string, data: any) =>
+    apiClient.patch(`/medical-records/${id}`, data).then(res => res.data?.data || res.data),
+
+  deleteMedicalRecord: (id: string) =>
+    apiClient.delete(`/medical-records/${id}`).then(res => res.data?.data || res.data),
+
+  uploadMedicalDocument: (recordId: string, formData: FormData) =>
+    apiClient.post(`/medical-records/${recordId}/documents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(res => res.data),
+
+  // Insurance - Plans
+  getInsurancePlans: (filters?: any) =>
+    apiClient.get('/insurance/plans', { params: filters }),
+
+  getInsurancePlanById: (id: string) =>
+    apiClient.get(`/insurance/plans/${id}`),
+
+  // Insurance - Policies
+  getUserPolicies: (status?: string) =>
+    apiClient.get('/insurance/policies', { params: { status } }),
+
+  getPolicyById: (id: string) =>
+    apiClient.get(`/insurance/policies/${id}`),
+
+  purchaseInsurance: (data: any) =>
+    apiClient.post('/insurance/policies', data),
+
+  cancelPolicy: (id: string) =>
+    apiClient.post(`/insurance/policies/${id}/cancel`),
+
+  updatePolicyAutoRenewal: (id: string, autoRenewal: boolean) =>
+    apiClient.patch(`/insurance/policies/${id}/auto-renewal`, { autoRenewal }),
+
+  // Insurance - Claims
+  getClaims: (status?: string) =>
+    apiClient.get('/insurance/claims', { params: { status } }),
+
+  getClaimById: (id: string) =>
+    apiClient.get(`/insurance/claims/${id}`),
+
+  submitClaim: (formData: FormData) =>
+    apiClient.post('/insurance/claims', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+
+  createDraftClaim: (data: any) =>
+    apiClient.post('/insurance/claims/draft', data),
+
+  updateDraftClaim: (id: string, data: any) =>
+    apiClient.patch(`/insurance/claims/${id}/draft`, data),
+
+  deleteDraftClaim: (id: string) =>
+    apiClient.delete(`/insurance/claims/${id}/draft`),
+
+  cancelClaim: (id: string) =>
+    apiClient.post(`/insurance/claims/${id}/cancel`),
+
+  // Insurance - Auto Claim
+  getAutoClaimSuggestions: () =>
+    apiClient.get('/insurance/claims/auto-suggestions'),
+
+  checkClaimEligibility: (medicalRecordId: string) =>
+    apiClient.get(`/insurance/claims/eligibility/${medicalRecordId}`),
+
+  // Hospital Dashboard - Statistics
+  getHospitalStatistics: (hospitalId: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/statistics`).then(res => res.data?.data || res.data),
+
+  // Hospital Dashboard - Bookings
+  getHospitalCompletedBookings: (hospitalId: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/bookings`).then(res => res.data?.data || res.data || []),
+
+  completeBooking: (hospitalId: string, bookingId: string) =>
+    apiClient.patch(`/hospitals/${hospitalId}/dashboard/bookings/${bookingId}/complete`).then(res => res.data?.data || res.data),
+
+  // Hospital Dashboard - Medical Records
+  createHospitalMedicalRecord: (hospitalId: string, data: any) =>
+    apiClient.post(`/hospitals/${hospitalId}/dashboard/medical-records`, data).then(res => res.data?.data || res.data),
+
+  updateHospitalMedicalRecord: (hospitalId: string, recordId: string, data: any) =>
+    apiClient.put(`/hospitals/${hospitalId}/dashboard/medical-records/${recordId}`, data).then(res => res.data?.data || res.data),
+
+  getHospitalMedicalRecords: (hospitalId: string, filters?: any) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/medical-records`, { params: filters }).then(res => res.data?.data || res.data || []),
+
+  getHospitalMedicalRecordById: (hospitalId: string, recordId: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/medical-records/${recordId}`).then(res => res.data?.data || res.data),
+
+  // Hospital Dashboard - Claims
+  getHospitalClaims: (hospitalId: string, status?: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/claims`, { params: { status } }).then(res => res.data?.data || res.data || []),
+
+  getHospitalClaimById: (hospitalId: string, claimId: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/claims/${claimId}`).then(res => res.data?.data || res.data),
+
+  // Hospital Dashboard - Payments
+  getHospitalPayments: (hospitalId: string, status?: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/payments`, { params: { status } }).then(res => res.data?.data || res.data || []),
+
+  getHospitalPaymentById: (hospitalId: string, paymentId: string) =>
+    apiClient.get(`/hospitals/${hospitalId}/dashboard/payments/${paymentId}`).then(res => res.data?.data || res.data),
+
+  // Hospital Dashboard - Documents
+  uploadHospitalDocuments: (hospitalId: string, formData: FormData) =>
+    apiClient.post(`/hospitals/${hospitalId}/dashboard/documents/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(res => res.data?.data || res.data),
 };
 
 export default api;

@@ -33,11 +33,47 @@ export interface Pet {
   neutered?: boolean;
   microchipId?: string;
 
+  // NEW: Medical Info Expansion
+  bloodType?: 'DEA 1.1+' | 'DEA 1.1-' | 'A' | 'B' | 'AB' | 'Unknown';
+  lastCheckupDate?: string;
+  nextVaccinationDue?: string;
+  medications?: Medication[];
+  dietaryRestrictions?: string[];
+
+  // NEW: Korean Registration Info
+  registrationNumber?: string;  // Government registration number
+  registrationDate?: string;
+  implantDate?: string;  // Microchip implant date
+
+  // NEW: Emergency Contact
+  emergencyContact?: EmergencyContact;
+
+  // NEW: NFC Collar Tag (Optional)
+  externalNfcTagId?: string;
+
   // Additional
   personality?: string;
   specialNeeds?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+// NEW: Supporting Interfaces
+export interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  notes?: string;
+}
+
+export interface EmergencyContact {
+  name: string;
+  phone: string;
+  relationship: string;
+  isVet?: boolean;
 }
 
 export interface MedicalRecord {
@@ -203,6 +239,60 @@ export interface TimeSlot {
   isOpen: boolean;
 }
 
+// Veterinarian types
+export interface Veterinarian {
+  id: string;
+  hospitalId: string;
+  name: string;
+  title?: string; // "수의사", "원장"
+  veterinarianLicense: string;
+  specialization?: string[]; // ["외과", "피부과", "치과"]
+  photo?: string;
+  email?: string;
+  phone?: string;
+
+  workingHours: WorkingSchedule;
+  consultationDuration: number; // default: 30 minutes
+  breakTimes?: BreakTime[];
+
+  isActive: boolean;
+  rating?: number;
+  reviewCount?: number;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkingSchedule {
+  monday: DaySchedule;
+  tuesday: DaySchedule;
+  wednesday: DaySchedule;
+  thursday: DaySchedule;
+  friday: DaySchedule;
+  saturday: DaySchedule;
+  sunday: DaySchedule;
+}
+
+export interface DaySchedule {
+  isWorking: boolean;
+  startTime: string; // "09:00"
+  endTime: string;   // "18:00"
+}
+
+export interface BreakTime {
+  startTime: string; // "12:00"
+  endTime: string;   // "13:00"
+}
+
+// Available time slot for booking (different from OpenHours TimeSlot)
+export interface AvailableTimeSlot {
+  time: string;
+  available: boolean;
+  veterinarianId?: string;
+  veterinarianName?: string;
+  doctorName?: string; // Deprecated, use veterinarianName
+}
+
 export interface Booking {
   id: string;
   userId: string;
@@ -213,6 +303,8 @@ export interface Booking {
   service: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   notes?: string;
+  veterinarianId?: string;
+  veterinarianName?: string;
   createdAt: string;
 }
 
@@ -223,5 +315,13 @@ export interface OnboardingScreen {
   image: string;
 }
 
-// Insurance types
-export * from './insurance';
+// Insurance types (Vercel: bundle-barrel-imports - Use named exports to avoid bloat)
+export type {
+  CoverageType,
+  InsurancePlan,
+  InsurancePolicy,
+  InsuranceClaim,
+  ClaimStatus,
+  ClaimSubmissionData,
+  AutoClaimSuggestion,
+} from './insurance';
